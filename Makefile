@@ -93,13 +93,13 @@ zlib.installed: zlib-1.2.8.tar.gz
 szip-2.1.tar.gz:
 	wget http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
 szip.installed: szip-2.1.tar.gz jpegsrc.v9a.installed
-	$(call compile)
+	$(call compile,--enable-encoding)
 #	tar xaf $< && cd $(basename $(basename $<)) && cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd .. && touch $@
 hdf-4.2.10.tar.bz2:
 	wget http://www.hdfgroup.org/ftp/HDF/HDF_Current/src/hdf-4.2.10.tar.bz2
-hdf.static.installed: hdf-4.2.10.tar.bz2 szip.installed jpegsrc.v9a.installed zlib.installed
-	$(call compile,--enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
-hdf.shared.installed: hdf-4.2.10.tar.bz2 szip.installed jpegsrc.v6b.installed zlib.installed
+hdf4.static.installed: hdf-4.2.10.tar.bz2 szip.installed jpegsrc.v9a.installed zlib.installed
+	$(call compile,--enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static CFLAGS="-O3 -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" CXXFLAGS="-O3 -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib")
+hdf4.shared.installed: hdf-4.2.10.tar.bz2 szip.installed jpegsrc.v6b.installed zlib.installed
 	$(call compile, --enable-shared --disable-fortran --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
 openjpeg-read-only:
 	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
@@ -125,7 +125,7 @@ python.installed: Python-$(python_ver).tar.xz
 	$(call compile)
 gdal-$(gdal_ver).tar.xz:
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/gdal-$(gdal_ver).tar.xz
-gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed hdf.shared.installed libspatialite.installed jasper.installed epsilon.installed postgresql.installed curl.installed xz.installed freexl.installed libkml.installed pcre.installed
+gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed hdf4.shared.installed libspatialite.installed jasper.installed epsilon.installed postgresql.installed curl.installed xz.installed freexl.installed libkml.installed pcre.installed
 	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-libz=internal --with-pcraster=internal --with-png=internal --with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --with-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite")
 grass-$(grass_ver).tar.gz:
 	wget http://grass.osgeo.org/grass64/source/grass-$(grass_ver).tar.gz
@@ -139,13 +139,14 @@ mapserver.installed: mapserver-$(mapserver_ver).tar.gz gdal.installed curl.insta
 gctpc20.tar.Z:
 	wget http://www.nco.ncep.noaa.gov/pmb/codes/nwprod/util/sorc/wgrib2.cd/grib2/gctpc20.tar.Z
 gctpc20.installed: gctpc20.tar.Z
-	tar xaf $< && cd gctpc/source && make && mv geolib.a $(INSTALL_DIR)/lib/libgctp.a && gcc -shared -fPIC -o libgctp.so *.c && mv libgctp.so $(INSTALL_DIR)/lib/
+	tar xaf $< && cd gctpc/source && make && mv geolib.a $(INSTALL_DIR)/lib/libgctp.a && gcc -shared -fPIC -o libgctp.so *.c && mv libgctp.so $(INSTALL_DIR)/lib/ && cd $$OLDPWD && touch $@
 
 HDF-EOS2.19v1.00.tar.Z:
 	wget -nc ftp://edhs1.gsfc.nasa.gov/edhs/hdfeos/latest_release/HDF-EOS2.19v1.00.tar.Z
-HDF-EOS2.installed: HDF-EOS2.19v1.00.tar.Z
-	tar xaf $< && cd hdfeos && ./configure CC=$(INSTALL_DIR)/bin/h4cc LDFLAGS=-L$(INSTALL_DIR)/lib --with-szlib=$(INSTALL_DIR) --with-hdf4=$(INSTALL_DIR) --prefix=$(INSTALL_DIR) && make && make install
+HDF-EOS2.installed: HDF-EOS2.19v1.00.tar.Z szip.installed hdf4.static.installed
+	tar xaf $< && cd hdfeos && ./configure CC=$(INSTALL_DIR)/bin/h4cc LDFLAGS=-L$(INSTALL_DIR)/lib --with-szlib=$(INSTALL_DIR) --with-hdf4=$(INSTALL_DIR)/hdf4-static --prefix=$(INSTALL_DIR) && make && make install && cd .. && touch $@
 
-ledaps.installed: libgeotiff.installed gctpc20.installed hdf.static.installed HDF-EOS2.installed szip.installed
-	cd ledaps-read-only/ledapsSrc/src && export HDFEOS_GCTPINC=$(INSTALL_DIR)/include/gctp &&export HDFEOS_GCTPLIB=$(INSTALL_DIR)/lib && export TIFFINC=/usr/include && export TIFFLIB=/usr/lib && export GEOTIFF_INC=$(INSTALL_DIR)/include && export GEOTIFF_LIB=$(INSTALL_DIR)/lib && export HDFINC=$(INSTALL_DIR)/include && export HDFLIB=$(INSTALL_DIR)/lib && export HDFEOS_INC=$(INSTALL_DIR)/include/hdfeos && export HDFEOS_LIB=$(INSTALL_DIR)/lib && export JPEGINC=$(INSTALL_DIR)/include && export JPEGLIB=$(INSTALL_DIR)/lib && export BIN=$(INSTALL_DIR)/bin/ledaps && export SZIPINC=$(INSTALL_DIR)/include && export SZIPLIB=$(INSTALL_DIR)/lib && make && make install && cd $$OLDPWD && touch $@
-
+ledaps-read-only:
+	svn checkout http://ledaps.googlecode.com/svn/releases/version_1.3.1 ledaps-read-only
+ledaps.installed: libgeotiff.installed gctpc20.installed hdf4.static.installed HDF-EOS2.installed szip.installed
+	cd ledaps-read-only/ledapsSrc/src && export HDFEOS_GCTPINC=$(INSTALL_DIR)/include/gctp &&export HDFEOS_GCTPLIB=$(INSTALL_DIR)/lib && export TIFFINC=/usr/include && export TIFFLIB=/usr/lib && export GEOTIFF_INC=$(INSTALL_DIR)/include && export GEOTIFF_LIB=$(INSTALL_DIR)/lib && export HDFINC=$(INSTALL_DIR)/hdf4-static/include && export HDFLIB=$(INSTALL_DIR)/hdf4-static/lib && export HDFEOS_INC=$(INSTALL_DIR)/include/hdfeos && export HDFEOS_LIB=$(INSTALL_DIR)/lib && export JPEGINC=$(INSTALL_DIR)/include && export JPEGLIB=$(INSTALL_DIR)/lib && export BIN=$(INSTALL_DIR)/bin/ledaps && export SZIPINC=$(INSTALL_DIR)/include && export SZIPLIB=$(INSTALL_DIR)/lib && find -type f | grep Makefile$ | xargs -n 1 sed -i 's/-ldf /-ldf -lsz /g' && make && make install && cd $$OLDPWD && touch $@
