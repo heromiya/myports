@@ -16,7 +16,24 @@ grass_ver = 6.4.4
 mapserver_ver = 6.4.1
 python_ver = 2.7.8
 fftw_ver = 3.3.4
+icewm_ver = 1.3.3
 
+icewm-$(icewm_ver).tar.gz:
+	wget http://downloads.sourceforge.net/project/icewm/icewm-1.3/$(icewm_ver)/icewm-$(icewm_ver).tar.gz
+icewm.installed: icewm-$(icewm_ver).tar.gz
+	$(call compile)
+libxml2-2.9.1.tar.gz:
+	wget http://xmlsoft.org/sources/libxml2-2.9.1.tar.gz
+libxml2.installed: libxml2-2.9.1.tar.gz python.installed
+	$(call compile)
+libxslt-1.1.28.tar.gz:
+	wget http://xmlsoft.org/sources/libxslt-1.1.28.tar.gz
+libxslt.installed: libxslt-1.1.28.tar.gz libxml2.installed
+	$(call compile)
+rsync-3.1.1.tar.gz:
+	wget http://rsync.samba.org/ftp/rsync/src/rsync-3.1.1.tar.gz
+rsync.installed: rsync-3.1.1.tar.gz
+	$(call compile)
 texinfo-$(texinfo_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/texinfo/texinfo-$(texinfo_ver).tar.xz
 texinfo.installed: texinfo-$(texinfo_ver).tar.xz
@@ -122,7 +139,7 @@ expat.installed: expat-$(expat_ver).tar.gz
 Python-$(python_ver).tar.xz:
 	wget https://www.python.org/ftp/python/$(python_ver)/Python-$(python_ver).tar.xz
 python.installed: Python-$(python_ver).tar.xz
-	$(call compile)
+	$(call compile,--enable-shared)
 gdal-$(gdal_ver).tar.xz:
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/gdal-$(gdal_ver).tar.xz
 gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed hdf4.shared.installed libspatialite.installed jasper.installed epsilon.installed postgresql.installed curl.installed xz.installed freexl.installed libkml.installed pcre.installed
