@@ -289,7 +289,7 @@ hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib
 #	cmake -D BUILD_SHARED_LIBS=ON -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=$(HOME)/apps -D HDF4_BUILD_FORTRAN=OFF -D JPEG_DIR=$(HOME)/apps -D ZLIB_DIR=$(HOME)/apps . && make && make install
 #	tar xaf $< && 
 
-openjpeg-read-only: subversion.installed
+openjpeg-read-only:
 	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
 openjpeg.installed: openjpeg-read-only
 	cd openjpeg-read-only && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd .. && touch $@
