@@ -4,11 +4,21 @@ CFLAGS = -O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64 -L$(INSTALL_D
 compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/share/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && make uninstall; make && make install && cd .. && touch $@
 
 texinfo_ver = 5.2
-curl_ver = 7.38.0
 pcre_ver = 8.36
-rsync_ver = 3.1.1
 zlib_ver = 1.2.8
 xz_version = 5.2.0
+bash_ver = 4.3.30
+gcc_ver = 4.8.3
+bison_ver = 3.0.2
+flex_ver = 2.5.39
+raptor_ver = 2.0.15
+
+w3m_version = 0.5.3
+wget_ver = 1.16.1
+openssh_ver = 6.7p1
+rsync_ver = 3.1.1
+curl_ver = 7.38.0
+lynx_ver = 2.8.8
 
 sqlite_ver = 3080802
 gdal_ver = 1.11.0
@@ -22,20 +32,11 @@ python_ver = 2.7.8
 fftw_ver = 3.3.4
 icewm_ver = 1.3.3
 qgis_ver = 2.6.1
-bash_ver = 4.3.30
-openssh_ver = 6.7p1
-gcc_ver = 4.8.3
 pyqt_version = 4.11.3
 sip_version = 4.16.4
 gsl_version = 1.16
 qiv_version = 2.3.1
-w3m_version = 0.5.3
-bison_ver = 3.0.2
-flex_ver = 2.5.39
 qwt_ver = 6.0.2
-raptor_ver = 2.0.15
-lynx_ver = 2.8.8
-wget_ver = 1.16.1
 
 libxml2_ver = 2.9.1
 libxslt_ver = 1.1.28
