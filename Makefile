@@ -1,7 +1,7 @@
 INSTALL_DIR = $(HOME)/apps
 CFLAGS = -O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib
 # -mtune=native
-compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/share/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && make uninstall; make && make install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/share/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && make uninstall; make && make install && cd .. && touch $@
 
 texinfo_ver = 5.2
 curl_ver = 7.38.0
@@ -42,7 +42,7 @@ libxslt_ver = 1.1.28
 libspatialite_ver = 4.2.0
 spatialite-tools_ver = 4.2.0
 freexl_ver = 1.0.0h
-hdf4_ver = 4.2.11
+hdf4_ver = 4.2.10
 jpeg_ver = 9a
 
 nettle-2.7.1.tar.gz:
@@ -263,23 +263,24 @@ szip-2.1.tar.gz:
 szip.installed: szip-2.1.tar.gz jpeg.installed
 	$(call compile,--enable-encoding)
 #	tar xaf $< && cd $(basename $(basename $<)) && cmake . -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd .. && touch $@
-hdf-$(hdf4_ver).tar.bz2:
-	wget http://www.hdfgroup.org/ftp/HDF/releases/HDF$(hdf4_ver)/src/hdf-$(hdf4_ver).tar.bz2
-hdf4.static.installed: hdf-$(hdf4_ver).tar.bz2 szip.installed jpeg.installed zlib.installed
+hdf-$(hdf4_ver).tar.gz:
+	wget http://www.hdfgroup.org/ftp/HDF/releases/HDF$(hdf4_ver)/src/hdf-$(hdf4_ver).tar.gz
+hdf4.static.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed
 	$(call compile,--enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static CFLAGS="-O3 -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" CXXFLAGS="-O3 -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib")
-hdf4.shared.installed: hdf-$(hdf4_ver).tar.bz2 szip.installed jpeg.installed zlib.installed
-	tar xaf $<
-	mkdir -p hdf4-build && cd hdf4-build && \
-	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/SZip.tar.gz && \
-	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/ZLib.tar.gz && \
-	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/JPEG8b.tar.gz && \
-	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/HDF4LinuxCMake.cmake && \
-	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/CTestScript.cmake && \
-	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/src/hdf-4.2.11.tar && \
-	ctest -S HDF4LinuxCMake.cmake,../hdf-$(hdf4_ver) -C Release -VV -O hdf4.log
+hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed
+	$(call compile, --enable-shared --disable-fortran --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
+
+#	tar xaf $<
+#	mkdir -p hdf4-build && cd hdf4-build && \
+#	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/SZip.tar.gz && \
+#	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/ZLib.tar.gz && \
+#	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/JPEG8b.tar.gz && \
+#	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/HDF4LinuxCMake.cmake && \
+#	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/CTestScript.cmake && \
+#	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/src/hdf-4.2.11.tar && \
+#	ctest -S HDF4LinuxCMake.cmake,../hdf-$(hdf4_ver) -C Release -VV -O hdf4.log
 #	cmake -D BUILD_SHARED_LIBS=ON -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=$(HOME)/apps -D HDF4_BUILD_FORTRAN=OFF -D JPEG_DIR=$(HOME)/apps -D ZLIB_DIR=$(HOME)/apps . && make && make install
 #	tar xaf $< && 
-#	$(call compile, --enable-shared --disable-fortran --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
 
 openjpeg-read-only:
 	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
