@@ -1,7 +1,7 @@
 INSTALL_DIR = $(HOME)/apps
-CFLAGS = -O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib
+CFLAGS = -O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib
 # -mtune=native
-compile = tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && make && make install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/share/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && make && make install && cd .. && touch $@
 
 texinfo_ver = 5.2
 curl_ver = 7.38.0
@@ -17,7 +17,145 @@ mapserver_ver = 6.4.1
 python_ver = 2.7.8
 fftw_ver = 3.3.4
 icewm_ver = 1.3.3
+qgis_ver = 2.6.1
+bash_ver = 4.3.30
+openssh_ver = 6.7p1
+gcc_ver = 4.8.3
+pyqt_version = 4.11.3
+sip_version = 4.16.4
+gsl_version = 1.16
+qiv_version = 2.3.1
+w3m_version = 0.5.3
+bison_ver = 3.0.2
+flex_ver = 2.5.39
+qwt_ver = 6.0.2
+raptor_ver = 2.0.15
+lynx_ver = 2.8.8
+wget_ver = 1.16.1
 
+nettle-2.7.1.tar.gz:
+	wget http://ftp.gnu.org/gnu/nettle/nettle-2.7.1.tar.gz
+nettle.installed: nettle-2.7.1.tar.gz
+	$(call compile,--enable-shared)
+gnutls-3.3.9.tar.xz:
+	wget ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/gnutls-3.3.9.tar.xz
+gnutls.installed: gnutls-3.3.9.tar.xz nettle.installed gmp.installed
+	$(call compile,)
+
+wget-1.16.1.tar.xz:
+	wget http://ftp.gnu.org/gnu/wget/wget-1.16.1.tar.xz
+wget.installed: wget-1.16.1.tar.xz gnutls.installed
+	$(call compile,)
+raptor2-2.0.15.tar.gz:
+	wget http://download.librdf.org/source/raptor2-2.0.15.tar.gz
+raptor.installed: raptor2-2.0.15.tar.gz
+	$(call compile)
+
+lynx$(lynx_ver).tar.bz2:
+	wget http://lynx.isc.org/lynx$(lynx_ver)/lynx$(lynx_ver).tar.bz2
+lynx.installed:lynx$(lynx_ver).tar.bz2 openssl.installed
+	tar xaf $< && cd lynx2-8-8 && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) --with-ssl=$(INSTALL_DIR)/lib --enable-persistent-cookies && make && make install && cd .. && touch $@
+
+w3m.installed: w3m-$(w3m_version).tar.gz w3m-bdwgc72.diff w3m-0.5.3-button.patch
+	tar xaf $< && cd $(basename $(basename $<)) && patch -p1 < ../w3m-bdwgc72.diff && patch -p1 < ../w3m-0.5.3-button.patch && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && ./configure --with-ssl --prefix=$(INSTALL_DIR) --with-termlib="ncurses terminfo termcap" --enable-image=no --disable-xface --disable-mouse && make && make install && cd .. && touch $@
+w3m-bdwgc72.diff:
+	wget http://sourceforge.net/p/w3m/patches/_discuss/thread/0f07465b/645b/attachment/w3m-bdwgc72.diff
+
+w3m-0.5.3-button.patch:
+	wget --no-check-certificate https://raw.githubusercontent.com/Vliegendehuiskat/slackbuilds/master/network/w3m/patches/w3m-0.5.3-button.patch
+
+gtk+-3.14.6.tar.xz:
+	wget http://ftp.gnome.org/pub/gnome/sources/gtk+/3.14/gtk+-3.14.6.tar.xz
+gtk+.installed: gtk+-3.14.6.tar.xz
+	$(call compile)
+qiv-2.3.1.tgz:
+	wget http://spiegl.de/qiv/download/qiv-2.3.1.tgz
+qiv.installed: qiv-2.3.1.tgz gtk+.installed
+	tar xaf $< && cd qiv-2.3.1 && make && make install && cd .. && touch $@
+
+gcc-$(gcc_ver).tar.bz2:
+	wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$(gcc_ver)/gcc-$(gcc_ver).tar.bz2
+gcc.installed: gcc-$(gcc_ver).tar.bz2 gmp.installed mpfr.installed mpc.installed
+	tar xaf $< && mkdir -p gcc-build && cd gcc-build && ../gcc-$(gcc_ver)/configure --prefix=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-mpc=$(INSTALL_DIR) --disable-libjava && make && make install
+
+gmp_ver = 6.0.0
+gmp-$(gmp_ver).tar.xz:
+	wget https://gmplib.org/download/gmp/gmp-$(gmp_ver).tar.xz
+#	wget ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-4.3.2.tar.bz2
+gmp.installed: gmp-$(gmp_ver).tar.xz
+	$(call compile)
+
+#tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="-I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" && export CXXFLAGS="-I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" && export CPPFLAGS="-I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" && ./configure --prefix=$(INSTALL_DIR) $1 && make && make install && cd .. && touch $@
+mpfr-2.4.2.tar.bz2:
+	wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.4.2.tar.bz2
+mpfr.installed: mpfr-2.4.2.tar.bz2
+	$(call compile)
+mpc-0.8.1.tar.gz:
+	wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-0.8.1.tar.gz
+mpc.installed: mpc-0.8.1.tar.gz
+	$(call compile)
+bison-$(bison_ver).tar.xz:
+	wget http://ftp.gnu.org/gnu/bison/bison-$(bison_ver).tar.xz
+bison.installed: bison-$(bison_ver).tar.xz
+	$(call compile)
+flex-$(flex_ver).tar.xz:
+	wget http://sourceforge.net/projects/flex/files/flex-$(flex_ver).tar.xz
+flex.installed: flex-$(flex_ver).tar.xz
+	$(call compile)
+dropbear-2014.66.tar.bz2:
+	wget http://matt.ucc.asn.au/dropbear/releases/dropbear-2014.66.tar.bz2
+dropbear.installed: dropbear-2014.66.tar.bz2
+	$(call compile)
+openssl-0.9.8zc.tar.gz:
+	wget http://www.openssl.org/source/openssl-0.9.8zc.tar.gz
+openssl.installed: openssl-0.9.8zc.tar.gz
+	tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && ./Configure linux-x86_64 shared zlib --prefix=$(INSTALL_DIR) && make && make install && cd .. && touch $@
+openssh-$(openssh_ver).tar.gz:
+	wget http://www.ftp.ne.jp/OpenBSD/OpenSSH/portable/openssh-$(openssh_ver).tar.gz
+openssh.installed: openssh-$(openssh_ver).tar.gz openssl.installed
+	$(call compile,--with-shared --with-libs --with-pie)
+bash-$(bash_ver).tar.gz:
+	wget http://ftp.gnu.org/gnu/bash/bash-$(bash_ver).tar.gz
+bash.installed: bash-$(bash_ver).tar.gz
+	$(call compile)
+
+sip-$(sip_version).tar.gz:
+	wget http://sourceforge.net/projects/pyqt/files/sip/sip-$(sip_version)/sip-$(sip_version).tar.gz
+sip.installed: sip-$(sip_version).tar.gz
+	tar xaf $< && cd $(basename $(basename $<)) && python configure.py && make && make install && cd .. && touch $@
+PyQt-x11-gpl-$(pyqt_version).tar.gz:
+	wget http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-$(pyqt_version)/PyQt-x11-gpl-$(pyqt_version).tar.gz
+pyqt.installed: PyQt-x11-gpl-$(pyqt_version).tar.gz sip.installed
+	tar xaf $< && cd $(basename $(basename $<)) && python configure.py && make && make install && cd .. && touch $@
+QScintilla-gpl-2.8.4.tar.gz:
+	wget http://sourceforge.net/projects/pyqt/files/QScintilla2/QScintilla-2.8.4/QScintilla-gpl-2.8.4.tar.gz
+QScintilla.installed: QScintilla-gpl-2.8.4.tar.gz sip.installed
+	tar xaf $< && cd $(basename $(basename $<))/Qt4Qt5 && qmake qscintilla.pro && make && make install && cd ../Python && python configure.py && make && make install && cd ../../ && touch $@
+
+qwt-$(qwt_ver).tar.bz2:
+	wget http://sourceforge.net/projects/qwt/files/qwt/$(qwt_ver)/qwt-$(qwt_ver).tar.bz2
+qwt.installed: qwt-$(qwt_ver).tar.bz2
+	tar xaf $< && cd $(basename $(basename $<)) && sed -i 's#QWT_INSTALL_PREFIX *= .*#QWT_INSTALL_PREFIX = $(INSTALL_DIR)#g' qwtconfig.pri && qmake qwt.pro && make && make install && cd $$OLDPWD && touch $@
+
+gsl-$(gsl_version).tar.gz:
+	wget http://ftp.yzu.edu.tw/gnu/gsl/gsl-$(gsl_version).tar.gz
+gsl.installed: gsl-$(gsl_version).tar.gz
+	$(call compile)
+spatialindex-src-1.8.5.tar.gz:
+	wget http://download.osgeo.org/libspatialindex/spatialindex-src-1.8.5.tar.gz
+spatialindex.installed: spatialindex-src-1.8.5.tar.gz
+	tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64" && export CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64" && export CPPFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64" && export LDFLAGS="-L$(INSTALL_DIR)/lib64" && ./configure --prefix=$(INSTALL_DIR) $1 && make && make install && cd .. && touch $@
+qgis-$(qgis_ver).tar.bz2:
+	wget http://qgis.org/downloads/qgis-$(qgis_ver).tar.bz2
+0001-Fix-build-failure-with-gcc-4.4-bug-10762.patch:
+	wget http://hub.qgis.org/attachments/download/7755/0001-Fix-build-failure-with-gcc-4.4-bug-10762.patch
+qgis.installed: qgis-$(qgis_ver).tar.bz2 qt.installed pyqt.installed gsl.installed QScintilla.installed qwt.installed spatialindex.installed bison.installed flex.installed gdal.installed 0001-Fix-build-failure-with-gcc-4.4-bug-10762.patch
+	tar xaf $< && cd $(basename $(basename $<)) && patch -p1 < ../0001-Fix-build-failure-with-gcc-4.4-bug-10762.patch && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && cmake -DSQLITE3_INCLUDE_DIR=/dias/users/miyazaki.h.u-tokyo/apps/include -DSQLITE3_LIBRARY=/dias/users/miyazaki.h.u-tokyo/apps/lib/libsqlite3.so -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) . && make && make install
+
+qt-everywhere-opensource-src-4.7.4.tar.gz:
+	wget http://download.qt-project.org/archive/qt/4.7/qt-everywhere-opensource-src-4.7.4.tar.gz
+qt.installed: qt-everywhere-opensource-src-4.7.4.tar.gz
+	$(call compile,-opensource)
 icewm-$(icewm_ver).tar.gz:
 	wget http://downloads.sourceforge.net/project/icewm/icewm-1.3/$(icewm_ver)/icewm-$(icewm_ver).tar.gz
 icewm.installed: icewm-$(icewm_ver).tar.gz
