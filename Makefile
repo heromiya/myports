@@ -21,7 +21,6 @@ mapserver_ver = 6.4.1
 python_ver = 2.7.8
 fftw_ver = 3.3.4
 icewm_ver = 1.3.3
-<<<<<<< HEAD
 qgis_ver = 2.6.1
 bash_ver = 4.3.30
 openssh_ver = 6.7p1
@@ -37,7 +36,7 @@ qwt_ver = 6.0.2
 raptor_ver = 2.0.15
 lynx_ver = 2.8.8
 wget_ver = 1.16.1
-=======
+
 libxml2_ver = 2.9.1
 libxslt_ver = 1.1.28
 libspatialite_ver = 4.2.0
@@ -45,7 +44,6 @@ spatialite-tools_ver = 4.2.0
 freexl_ver = 1.0.0h
 hdf4_ver = 4.2.11
 jpeg_ver = 9a
->>>>>>> 77ee5b4471fb7a6dcf7bdc54261995948c169477
 
 nettle-2.7.1.tar.gz:
 	wget http://ftp.gnu.org/gnu/nettle/nettle-2.7.1.tar.gz
@@ -279,7 +277,7 @@ hdf4.shared.installed: hdf-$(hdf4_ver).tar.bz2 szip.installed jpeg.installed zli
 	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/CMake/CTestScript.cmake && \
 	wget -nc http://www.hdfgroup.org/ftp/HDF/HDF_Current/src/hdf-4.2.11.tar && \
 	ctest -S HDF4LinuxCMake.cmake,../hdf-$(hdf4_ver) -C Release -VV -O hdf4.log
-	#	cmake -D BUILD_SHARED_LIBS=ON -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=$(HOME)/apps -D HDF4_BUILD_FORTRAN=OFF -D JPEG_DIR=$(HOME)/apps -D ZLIB_DIR=$(HOME)/apps . && make && make install
+#	cmake -D BUILD_SHARED_LIBS=ON -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=$(HOME)/apps -D HDF4_BUILD_FORTRAN=OFF -D JPEG_DIR=$(HOME)/apps -D ZLIB_DIR=$(HOME)/apps . && make && make install
 #	tar xaf $< && 
 #	$(call compile, --enable-shared --disable-fortran --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
 
