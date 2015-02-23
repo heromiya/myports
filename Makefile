@@ -76,7 +76,7 @@ sqlite.installed: sqlite-autoconf-$(sqlite_ver).tar.gz
 	$(call compile)
 libspatialite-3.0.1.tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-3.0.1.tar.gz
-libspatialite.installed: libspatialite-3.0.1.tar.gz sqlite.installed
+libspatialite.installed: libspatialite-3.0.1.tar.gz sqlite.installed freexl.installed
 	$(call compile)
 freexl-1.0.0g.tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/freexl-sources/freexl-1.0.0g.tar.gz
@@ -87,7 +87,7 @@ readosm-1.0.0b.tar.gz:
 readosm.installed: readosm-1.0.0b.tar.gz
 	$(call compile)
 spatialite-tools-3.1.0.tar.gz: 
-	http://www.gaia-gis.it/gaia-sins/spatialite-tools-sources/spatialite-tools-3.1.0.tar.gz
+	wget http://www.gaia-gis.it/gaia-sins/spatialite-tools-sources/spatialite-tools-3.1.0.tar.gz
 spatialite-tools.installed: spatialite-tools-3.1.0.tar.gz libspatialite.installed freexl.installed readosm.installed
 	$(call compile,CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" PKG_CONFIG_PATH=$(shell pwd)/libspatialite-3.0.1:$(shell pwd)/freexl-1.0.0g:$(shell pwd)/readosm-1.0.0b)
 postgresql-9.1.14.tar.bz2:
