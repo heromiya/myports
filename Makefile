@@ -6,7 +6,7 @@ compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=
 texinfo_ver = 5.2
 pcre_ver = 8.36
 zlib_ver = 1.2.8
-xz_version = 5.2.0
+xz_version = 5.0.8
 bash_ver = 4.3.30
 gcc_ver = 4.8.3
 bison_ver = 3.0.2
@@ -43,6 +43,7 @@ libxslt_ver = 1.1.28
 libspatialite_ver = 4.2.0
 spatialite-tools_ver = 4.2.0
 freexl_ver = 1.0.0h
+# Versions of HDF4 and JPEG should be as below for compatibility in Cygwin 
 hdf4_ver = 4.2.10
 jpeg_ver = 9a
 
@@ -269,7 +270,7 @@ hdf-$(hdf4_ver).tar.gz:
 hdf4.static.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed
 	$(call compile,--enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static CFLAGS="-O3 -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" CXXFLAGS="-O3 -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib")
 hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed
-	$(call compile, --enable-shared --disable-fortran --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
+	$(call compile, --enable-shared --disable-fortran --disable-hdf4-xdr --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
 
 #	tar xaf $<
 #	mkdir -p hdf4-build && cd hdf4-build && \
@@ -307,7 +308,8 @@ python.installed: Python-$(python_ver).tar.xz
 	$(call compile,--enable-shared)
 gdal-$(gdal_ver).tar.xz:
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/gdal-$(gdal_ver).tar.xz
-gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed hdf4.shared.installed libspatialite.installed epsilon.installed postgresql.installed curl.installed xz.installed freexl.installed libkml.installed pcre.installed
+
+gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed
 	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-libz=internal --with-pcraster=internal --with-png=internal --with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --with-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite")
 grass-$(grass_ver).tar.gz:
 	wget http://grass.osgeo.org/grass64/source/grass-$(grass_ver).tar.gz
