@@ -280,9 +280,9 @@ hdf4.static.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib
 hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed bison.installed flex.installed
 	$(call compile, --enable-shared --disable-fortran --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
 
-openjpeg-read-only:
+openjpeg-read-only: subversion.installed
 	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
-openjpeg.installed: openjpeg-read-only subversion.installed
+openjpeg.installed: openjpeg-read-only
 	cd openjpeg-read-only && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd .. && touch $@
 jasper-1.900.1.zip:
 	wget http://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.1.zip
