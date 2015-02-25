@@ -1,5 +1,5 @@
 INSTALL_DIR = $(HOME)/apps
-CFLAGS = -O3 -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib
+CFLAGS = -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib
 # -mtune=native
 compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig:$(INSTALL_DIR)/share/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && make uninstall; make && make install && cd .. && touch $@
 
@@ -8,7 +8,7 @@ pcre_ver = 8.36
 zlib_ver = 1.2.8
 xz_version = 5.0.8
 bash_ver = 4.3.30
-gcc_ver = 4.8.3
+gcc_ver = 4.8.4
 bison_ver = 3.0.2
 flex_ver = 2.5.39
 raptor_ver = 2.0.15
@@ -22,7 +22,7 @@ lynx_ver = 2.8.8
 svn_ver = 1.8.11
 
 sqlite_ver = 3080802
-gdal_ver = 1.11.0
+gdal_ver = 1.11.2
 GDAL_OPT =  --with-fgdb=$(INSTALL_DIR) 
 expat_ver = 2.1.0
 proj_ver = 4.8.0
@@ -92,11 +92,12 @@ qiv.installed: qiv-2.3.1.tgz gtk+.installed
 	tar xaf $< && cd qiv-2.3.1 && make && make install && cd .. && touch $@
 
 gcc-$(gcc_ver).tar.bz2:
+#http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-4.8.4/gcc-4.8.4.tar.bz2
 	wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$(gcc_ver)/gcc-$(gcc_ver).tar.bz2
 gcc.installed: gcc-$(gcc_ver).tar.bz2 gmp.installed mpfr.installed mpc.installed
-	tar xaf $< && mkdir -p gcc-build && cd gcc-build && ../gcc-$(gcc_ver)/configure --prefix=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-mpc=$(INSTALL_DIR) --disable-libjava && make && make install
+	tar xaf $< && mkdir -p gcc-build && cd gcc-build && export LDFLAGS=-L$(INSTALL_DIR)/lib && ../gcc-$(gcc_ver)/configure --prefix=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-mpc=$(INSTALL_DIR) --disable-libjava && make && make install
 
-gmp_ver = 6.0.0
+gmp_ver = 4.3.2
 gmp-$(gmp_ver).tar.xz:
 	wget https://gmplib.org/download/gmp/gmp-$(gmp_ver).tar.xz
 #	wget ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-4.3.2.tar.bz2
@@ -104,13 +105,16 @@ gmp.installed: gmp-$(gmp_ver).tar.xz
 	$(call compile)
 
 #tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="-I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" && export CXXFLAGS="-I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" && export CPPFLAGS="-I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" && ./configure --prefix=$(INSTALL_DIR) $1 && make && make install && cd .. && touch $@
-mpfr-2.4.2.tar.bz2:
-	wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.4.2.tar.bz2
-mpfr.installed: mpfr-2.4.2.tar.bz2
+mpfr_ver = 2.4.1
+mpfr-$(mpfr_ver).tar.bz2:
+	wget http://www.mpfr.org/mpfr-$(mpfr_ver)/mpfr-$(mpfr_ver).tar.bz2
+#	wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.4.1.tar.bz2
+mpfr.installed: mpfr-$(mpfr_ver).tar.bz2
 	$(call compile)
-mpc-0.8.1.tar.gz:
-	wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-0.8.1.tar.gz
-mpc.installed: mpc-0.8.1.tar.gz
+mpc-0.8.2.tar.gz:
+	wget http://www.multiprecision.org/mpc/download/mpc-0.8.2.tar.gz
+#ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-0.8.1.tar.gz
+mpc.installed: mpc-0.8.2.tar.gz
 	$(call compile)
 bison-$(bison_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/bison/bison-$(bison_ver).tar.xz
@@ -230,7 +234,7 @@ libgeotiff.installed: libgeotiff-1.4.0.tar.gz jpeg.installed zlib.installed
 sqlite-autoconf-$(sqlite_ver).tar.gz:
 	wget http://www.sqlite.org/2015/sqlite-autoconf-$(sqlite_ver).tar.gz
 sqlite.installed: sqlite-autoconf-$(sqlite_ver).tar.gz
-	$(call compile,--enable-threadsafe=no)
+	$(call compile,)
 libspatialite-$(libspatialite_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-$(libspatialite_ver).tar.gz
 libspatialite.installed: libspatialite-$(libspatialite_ver).tar.gz sqlite.installed freexl.installed geos.installed libxml2.installed
@@ -307,6 +311,7 @@ gdal-$(gdal_ver).tar.xz:
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/gdal-$(gdal_ver).tar.xz
 
 gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed jasper.installed
+	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/lib/libgdal* 
 	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-libz=internal --with-pcraster=internal --with-png=internal --with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --with-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) CFLAGS="$(CFLAGS) -lspatialite" CXXFLAGS="$(CFLAGS) -lspatialite")
 
 grass-$(grass_ver).tar.gz:
