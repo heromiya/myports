@@ -47,6 +47,11 @@ freexl_ver = 1.0.0h
 hdf4_ver = 4.2.10
 jpeg_ver = 9a
 
+p7zip_9.38.1_src_all.tar.bz2: 
+	wget http://sourceforge.net/projects/p7zip/files/p7zip/9.38.1/p7zip_9.38.1_src_all.tar.bz2
+p7zip.installed:
+	tar xaf $< && cd $(basename $(basename $<)) && make
+
 nettle-2.7.1.tar.gz:
 	wget http://ftp.gnu.org/gnu/nettle/nettle-2.7.1.tar.gz
 nettle.installed: nettle-2.7.1.tar.gz
