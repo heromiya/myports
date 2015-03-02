@@ -19,7 +19,7 @@ openssh_ver = 6.7p1
 rsync_ver = 3.1.1
 curl_ver = 7.38.0
 lynx_ver = 2.8.8
-svn_ver = 1.8.11
+subversion_ver = 1.8.11
 
 sqlite_ver = 3080802
 gdal_ver = 1.11.2
@@ -77,9 +77,9 @@ w3m-bdwgc72.diff:
 w3m-0.5.3-button.patch:
 	wget --no-check-certificate https://raw.githubusercontent.com/Vliegendehuiskat/slackbuilds/master/network/w3m/patches/w3m-0.5.3-button.patch
 
-subversion-$(svn_ver).tar.bz2:
+subversion-$(subversion_ver).tar.bz2:
 	wget http://mirror.symnds.com/software/Apache/subversion/subversion-$(svn_ver).tar.bz2	
-subversion.installed: subversion-$(svn_ver).tar.bz2
+subversion.installed: subversion-$(subversion_ver).tar.bz2
 	$(call compile)
 
 gtk+-3.14.6.tar.xz:
