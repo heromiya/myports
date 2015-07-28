@@ -24,6 +24,12 @@ apr-util_ver = 1.5.4
 tar_ver =  1.28
 glibc_ver = 2.21
 gzip_ver = 1.3.13
+iojs_ver = 2.4.0
+
+iojs-v$(iojs_ver).tar.xz:
+	wget https://iojs.org/dist/v$(iojs_ver)/iojs-v$(iojs_ver).tar.xz
+iojs.installed: iojs-v$(iojs_ver).tar.xz
+	$(call compile)
 
 gzip-$(gzip_ver).tar.xz:
 	wget http://ftp.jaist.ac.jp/pub/GNU/gzip/$@
