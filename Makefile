@@ -2,7 +2,7 @@ INSTALL_DIR = $(HOME)/apps
 CFLAGS = -O3 -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L/usr/local/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -mtune=native
 #CXXFLAGS= -O3 -fPIC
 # 
-compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=/usr/bin/cc && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1  && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 include utils.makefile
 
@@ -23,6 +23,8 @@ sip_version = 4.16.4
 gsl_version = 1.16
 qiv_version = 2.3.1
 qwt_ver = 6.0.2
+octave_ver = 3.8.2
+graphicmagick_ver = 1.3.21
 
 libxml2_ver = 2.9.1
 libxslt_ver = 1.1.28
@@ -33,6 +35,19 @@ hdf4_ver = 4.2.10
 jpeg_ver = 9a
 
 all:
+
+GraphicsMagick-$(graphicmagick_ver).tar.bz2:
+	wget http://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/$(graphicmagick_ver)/GraphicsMagick-$(graphicmagick_ver).tar.bz2
+graphicsmagick.installed: GraphicsMagick-$(graphicmagick_ver).tar.bz2
+	$(call compile,--enable-shared)
+
+octave-$(octave_ver).tar.bz2:
+	wget ftp://ftp.gnu.org/gnu/octave/octave-$(octave_ver).tar.bz2
+octave.installed: octave-$(octave_ver).tar.bz2 graphicsmagick.installed
+	$(call compile,--disable-gui)
+
+
+#	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1  && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 dropbear-2014.66.tar.bz2:
 	wget http://matt.ucc.asn.au/dropbear/releases/dropbear-2014.66.tar.bz2
