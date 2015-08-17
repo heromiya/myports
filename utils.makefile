@@ -3,7 +3,6 @@ pcre_ver = 8.36
 zlib_ver = 1.2.8
 xz_ver = 5.0.8
 bash_ver = 4.3.30
-gcc_ver = 4.8.4
 bison_ver = 3.0.2
 flex_ver = 2.5.39
 raptor_ver = 2.0.15
@@ -25,6 +24,31 @@ tar_ver =  1.28
 glibc_ver = 2.21
 gzip_ver = 1.3.13
 iojs_ver = 2.4.0
+parallel_ver = 20150722
+binutils_ver = 2.25.1
+
+gcc_ver = 4.8.4
+gmp_ver = 4.3.2
+mpfr_ver = 2.4.2
+isl_ver = 0.15
+
+nettle_ver = 2.0
+
+isl-$(isl_ver).tar.xz:
+	wget http://isl.gforge.inria.fr/isl-$(isl_ver).tar.xz
+isl.installed: isl-$(isl_ver).tar.xz
+	$(call compile)
+
+binutils-$(binutils_ver).tar.bz2:
+	wget http://ftp.gnu.org/gnu/binutils/binutils-$(binutils_ver).tar.bz2 
+binutils.installed: binutils-$(binutils_ver).tar.bz2
+	$(call compile)
+
+parallel-$(parallel_ver).tar.bz2:
+	wget http://ftp.gnu.org/gnu/parallel/parallel-$(parallel_ver).tar.bz2
+
+parallel.installed: parallel-$(parallel_ver).tar.bz2
+	$(call compile)
 
 iojs-v$(iojs_ver).tar.xz:
 	wget https://iojs.org/dist/v$(iojs_ver)/iojs-v$(iojs_ver).tar.xz
@@ -38,7 +62,7 @@ gzip.installed: gzip-$(gzip_ver).tar.xz
 glibc-$(glibc_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/glibc/$@
 glibc.installed: glibc-$(glibc_ver).tar.xz
-	 mkdir -p glibc-build && cd glibc-build && export CC=/usr/bin/cc && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) $1  && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+	mkdir -p glibc-build && cd glibc-build && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) CC=/usr/bin/cc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 screen-$(screen_ver).tar.gz:
 	wget http://ftp.gnu.org/gnu/screen/$@
@@ -49,24 +73,25 @@ emacs-$(emacs_ver).tar.gz:
 	wget http://ftp.yzu.edu.tw/gnu/emacs/$@
 emacs.installed: emacs-$(emacs_ver).tar.gz
 	$(compile)
+
 tar-$(tar_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/tar/$@
 tar.installed: tar-$(tar_ver).tar.xz
-	tar xJf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig:$(INSTALL_DIR)/share/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && gmake uninstall; gmake && gmake install && cd .. && touch $@
+	tar xJf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig:$(INSTALL_DIR)/share/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" gmake uninstall; gmake && gmake install && cd .. && touch $@
 
 p7zip_9.38.1_src_all.tar.bz2: 
 	wget http://sourceforge.net/projects/p7zip/files/p7zip/9.38.1/$@
 p7zip.installed:
 	tar xaf $< && cd $(basename $(basename $<)) && make
 
-nettle-2.7.1.tar.gz:
-	wget http://ftp.gnu.org/gnu/nettle/nettle-2.7.1.tar.gz
-nettle.installed: nettle-2.7.1.tar.gz
+nettle-$(nettle_ver).tar.gz:
+	wget http://ftp.gnu.org/gnu/nettle/nettle-$(nettle_ver).tar.gz
+nettle.installed: nettle-$(nettle_ver).tar.gz binutils.installed gmp.installed
 	$(call compile,--enable-shared)
-gnutls-3.3.9.tar.xz:
-	wget ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/gnutls-3.3.9.tar.xz
-gnutls.installed: gnutls-3.3.9.tar.xz nettle.installed gmp.installed
-	$(call compile,)
+gnutls-2.6.6.tar.bz2:
+	wget ftp://ftp.gnutls.org/gcrypt/gnutls/v2.6/gnutls-2.6.6.tar.bz2
+gnutls.installed: gnutls-2.6.6.tar.bz2 nettle.installed gmp.installed
+	$(call compile)
 
 wget-$(wget_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/wget/$@
@@ -124,30 +149,23 @@ qiv.installed: qiv-2.3.1.tgz gtk+.installed
 	tar xaf $< && cd qiv-2.3.1 && make && make install && cd .. && touch $@
 
 gcc-$(gcc_ver).tar.bz2:
-#http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-4.8.4/gcc-4.8.4.tar.bz2
 	wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$(gcc_ver)/gcc-$(gcc_ver).tar.bz2
-gcc.installed: gcc-$(gcc_ver).tar.bz2 gmp.installed mpfr.installed mpc.installed
-	tar xaf $< && mkdir -p gcc-build && cd gcc-build && export LDFLAGS=-L$(INSTALL_DIR)/lib && ../gcc-$(gcc_ver)/configure --prefix=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-mpc=$(INSTALL_DIR) --disable-libjava && make && make install
-
-gmp_ver = 4.3.2
+gcc.installed: gcc-$(gcc_ver).tar.bz2 gmp.installed mpfr.installed mpc.installed isl.installed
+	cd gcc-build && ../gcc-$(gcc_ver)/configure --prefix=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-mpfr-include=$(INSTALL_DIR)/include --with-mpc=$(INSTALL_DIR) --disable-libjava CC=gcc LDFLAGS=-L$(INSTALL_DIR)/lib && make -j20 && make install && cd .. && touch $@
+#tar xaf $< && mkdir -p gcc-build && 
 gmp-$(gmp_ver).tar.xz:
 	wget --no-check-certificate https://gmplib.org/download/gmp/gmp-$(gmp_ver).tar.xz
-#	wget ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-4.3.2.tar.bz2
 gmp.installed: gmp-$(gmp_ver).tar.xz
-	$(call compile)
+	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
-#tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="-I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" && export CXXFLAGS="-I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" && export CPPFLAGS="-I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" && ./configure --prefix=$(INSTALL_DIR) $1 && make && make install && cd .. && touch $@
-mpfr_ver = 2.4.1
 mpfr-$(mpfr_ver).tar.bz2:
 	wget http://www.mpfr.org/mpfr-$(mpfr_ver)/mpfr-$(mpfr_ver).tar.bz2
-#	wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.4.1.tar.bz2
 mpfr.installed: mpfr-$(mpfr_ver).tar.bz2
-	$(call compile)
+	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) CC=/usr/bin/gcc && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 mpc-0.8.2.tar.gz:
 	wget http://www.multiprecision.org/mpc/download/mpc-0.8.2.tar.gz
-#ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-0.8.1.tar.gz
 mpc.installed: mpc-0.8.2.tar.gz
-	$(call compile)
+	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 bison-$(bison_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/bison/bison-$(bison_ver).tar.xz
 bison.installed: bison-$(bison_ver).tar.xz

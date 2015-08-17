@@ -2,7 +2,7 @@ INSTALL_DIR = $(HOME)/apps
 CFLAGS = -O3 -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L/usr/local/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -mtune=native
 #CXXFLAGS= -O3 -fPIC
 # 
-compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 include utils.makefile
 
@@ -39,7 +39,7 @@ all:
 GraphicsMagick-$(graphicmagick_ver).tar.bz2:
 	wget http://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/$(graphicmagick_ver)/GraphicsMagick-$(graphicmagick_ver).tar.bz2
 graphicsmagick.installed: GraphicsMagick-$(graphicmagick_ver).tar.bz2
-	$(call compile,--enable-shared)
+	$(call compile,--enable-shared --with-quantum-depth=16 --disable-static --with-magick-plus-plus=yes)
 
 octave-$(octave_ver).tar.bz2:
 	wget ftp://ftp.gnu.org/gnu/octave/octave-$(octave_ver).tar.bz2
