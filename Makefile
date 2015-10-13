@@ -1,12 +1,12 @@
 INSTALL_DIR = $(HOME)/apps
-CFLAGS = -O3 -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L/usr/local/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -mtune=native
+CFLAGS = -O3 -fPIC -m64 -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L/usr/local/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -mtune=native
 #CXXFLAGS= -O3 -fPIC
 # 
-compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-m64 -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 include utils.makefile
 
-sqlite_ver = 3080802
+sqlite_ver = 3081101
 gdal_ver = 1.11.2
 GDAL_OPT =  --with-fgdb=$(INSTALL_DIR) 
 expat_ver = 2.1.0
@@ -29,9 +29,9 @@ ossim_ver = 1.8.16
 
 libxml2_ver = 2.9.1
 libxslt_ver = 1.1.28
-libspatialite_ver = 4.2.0
-spatialite-tools_ver = 4.2.0
-freexl_ver = 1.0.0h
+libspatialite_ver = 4.3.0
+spatialite-tools_ver = 4.3.0
+freexl_ver = 1.0.2
 hdf4_ver = 4.2.10
 jpeg_ver = 9a
 
@@ -144,7 +144,13 @@ fftw.installed: fftw-$(fftw_ver).tar.gz
 libkml-1.2.0.tar.gz:
 	wget --no-check-certificate https://libkml.googlecode.com/files/libkml-1.2.0.tar.gz
 libkml.installed: libkml-1.2.0.tar.gz curl.installed
-	tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig:$(INSTALL_DIR)/share/pkgconfig && export CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -Wno-long-long" && export CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -Wno-long-long -Wno-unused-result" && export CPPFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -I/usr/local/include -I/usr/include -Wno-long-long -Wno-unused-result" && ./configure --prefix=$(INSTALL_DIR) $1 && sed -i 's/#include <sys\/stat.h>/#include <sys\/stat.h>\n#include <unistd.h>\n#include <sys\/unistd.h>/g' src/kml/base/file_posix.cc && make uninstall; make && make install && cd .. && touch $@
+	tar xaf $< && cd $(basename $(basename $<)) \
+	&& export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig:$(INSTALL_DIR)/share/pkgconfig \
+	&& export CFLAGS="-O3 -m64 -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -Wno-long-long" \
+	&& export CXXFLAGS="-O3 -m64 -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -Wno-long-long -Wno-unused-result" \
+	&& export CPPFLAGS="-O3 -m64 -fPIC -I$(INSTALL_DIR)/include -I/usr/local/include -I/usr/include -Wno-long-long -Wno-unused-result" \
+	&& export LDFLAGS="-m64 -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" \
+	&& ./configure --prefix=$(INSTALL_DIR) $1 && sed -i 's/#include <sys\/stat.h>/#include <sys\/stat.h>\n#include <unistd.h>\n#include <sys\/unistd.h>/g' src/kml/base/file_posix.cc && make uninstall; make && make install && cd .. && touch $@
 
 libgeotiff-1.4.0.tar.gz:
 	wget http://download.osgeo.org/geotiff/libgeotiff/libgeotiff-1.4.0.tar.gz
@@ -158,7 +164,7 @@ libspatialite-$(libspatialite_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/libspatialite-sources/$@
 libspatialite.installed: libspatialite-$(libspatialite_ver).tar.gz sqlite.installed freexl.installed geos.installed libxml2.installed
 	rm -rf $(INSTALL_DIR)/lib/libspatialite.* $(INSTALL_DIR)/include/spatialite $(INSTALL_DIR)/include/spatialite.h
-	$(call compile,--with-geosconfig=$(INSTALL_DIR)/bin/geos-config --disable-examples LIBXML2_LIBS="-lxml2" LIBXML2_CFLAGS="-I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lxml2")
+	$(call compile,--disable-mathsql --with-geosconfig=$(INSTALL_DIR)/bin/geos-config --disable-examples LIBXML2_LIBS="-lxml2" LIBXML2_CFLAGS="-I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lxml2")
 freexl-$(freexl_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/freexl-sources/$@
 freexl.installed: freexl-$(freexl_ver).tar.gz
