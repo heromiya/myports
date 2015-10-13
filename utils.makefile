@@ -26,6 +26,8 @@ gzip_ver = 1.3.13
 iojs_ver = 2.4.0
 parallel_ver = 20150722
 binutils_ver = 2.25.1
+openthreads_ver = 
+
 
 gcc_ver = 4.8.4
 gmp_ver = 4.3.2
@@ -33,6 +35,7 @@ mpfr_ver = 2.4.2
 isl_ver = 0.15
 
 nettle_ver = 2.0
+
 
 isl-$(isl_ver).tar.xz:
 	wget http://isl.gforge.inria.fr/isl-$(isl_ver).tar.xz

@@ -2,7 +2,7 @@ INSTALL_DIR = $(HOME)/apps
 CFLAGS = -O3 -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L/usr/local/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -mtune=native
 #CXXFLAGS= -O3 -fPIC
 # 
-compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 include utils.makefile
 
@@ -25,6 +25,7 @@ qiv_version = 2.3.1
 qwt_ver = 6.0.2
 octave_ver = 3.8.2
 graphicmagick_ver = 1.3.21
+ossim_ver = 1.8.16
 
 libxml2_ver = 2.9.1
 libxslt_ver = 1.1.28
@@ -34,7 +35,24 @@ freexl_ver = 1.0.0h
 hdf4_ver = 4.2.10
 jpeg_ver = 9a
 
+ITK_ver = 3.12.0
+OpenSceneGraph_ver = 2.8.5
+
+
 all:
+
+
+OpenSceneGraph-2.8.5.zip:
+	wget http://www.openscenegraph.org/downloads/stable_releases/OpenSceneGraph-2.8.5/source/OpenSceneGraph-2.8.5.zip
+OpenSceneGraph.installed: OpenSceneGraph-2.8.5.zip
+	unzip $< && cd OpenSceneGraph-2.8.5 && ./configure --prefix=$(INSTALL_DIR) CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+
+
+ossim-$(ossim_ver).tar.gz:
+	wget http://download.osgeo.org/ossim/source/ossim-$(ossim_ver)/ossim-$(ossim_ver).tar.gz
+ossim.installed: ossim-$(ossim_ver).tar.gz
+	$(call compile,--with-libtiff=$(INSTALL_DIR) --with-geotiff=$(INSTALL_DIR) --with-openthreads=$(INSTALL_DIR))
+#	tar xaf $< && cd ossim-1.8.16/ossim && ./configure --prefix=$(INSTALL_DIR) --enable-sharedOssimLibraries --enable-staticOssimLibraries --enable-singleSharedOssimLibrary --enable-singleStaticOssimLibrary --enable-staticOssimApps --with-libtiff=$(INSTALL_DIR) --with-geotiff=$(INSTALL_DIR) --with-openthreads=$(INSTALL_DIR) CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 GraphicsMagick-$(graphicmagick_ver).tar.bz2:
 	wget http://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/$(graphicmagick_ver)/GraphicsMagick-$(graphicmagick_ver).tar.bz2
@@ -157,9 +175,10 @@ postgresql-9.1.14.tar.bz2:
 	wget http://ftp.postgresql.org/pub/source/v9.1.14/postgresql-9.1.14.tar.bz2
 postgresql.installed: postgresql-9.1.14.tar.bz2 texinfo.installed
 	$(call compile)
-postgis-1.5.8.tar.gz:
-	wget http://download.osgeo.org/postgis/source/postgis-1.5.8.tar.gz
-postgis.installed: postgis-1.5.8.tar.gz postgresql.installed proj.installed geos.installed
+postgis_ver = 2.1.8
+postgis-$(postgis_ver).tar.gz:
+	wget http://download.osgeo.org/postgis/source/postgis-$(postgis_ver).tar.gz
+postgis.installed: postgis-$(postgis_ver).tar.gz postgresql.installed proj.installed geos.installed
 	$(call compile,--with-projdir=$(INSTALL_DIR))
 jpegsrc.v$(jpeg_ver).tar.gz:
 	wget http://www.ijg.org/files/jpegsrc.v$(jpeg_ver).tar.gz
