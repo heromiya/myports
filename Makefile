@@ -1,9 +1,26 @@
+UNAME_A = `uname -a`
+ifeq ($(filter x86_64,$(UNAME_A)),$(UNAME_A))
+m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
+endif
+
+ifneq (`which make`,)
+MAKE = make
+else
+MAKE = gmake
+endif
+
+ifneq (`which libtool`,)
+LIBTOOL = 
+else
+LIBTOOL = && ln -sf `which libtool` .
+endif
+
 INSTALL_DIR = $(HOME)/apps
-CFLAGS = -O3 -fPIC -m64 -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L/usr/local/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -mtune=native
-LDFLAGS= -m64 -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib
+CFLAGS = -O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L/usr/local/lib -L$(INSTALL_DIR)/lib -mtune=native
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
 #CXXFLAGS= -O3 -fPIC
 # 
-compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="$(LDFLAGS)"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
 
 include utils.makefile
 
@@ -15,7 +32,7 @@ proj_ver = 4.8.0
 geos_ver = 3.4.2
 grass_ver = 6.4.4
 mapserver_ver = 6.4.1
-python_ver = 2.7.8
+python_ver = 2.7.9
 fftw_ver = 3.3.4
 icewm_ver = 1.3.3
 qgis_ver = 2.6.1
@@ -46,7 +63,7 @@ all:
 OpenSceneGraph-2.8.5.zip:
 	wget http://www.openscenegraph.org/downloads/stable_releases/OpenSceneGraph-2.8.5/source/OpenSceneGraph-2.8.5.zip
 OpenSceneGraph.installed: OpenSceneGraph-2.8.5.zip
-	unzip $< && cd OpenSceneGraph-2.8.5 && ./configure --prefix=$(INSTALL_DIR) CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+	unzip $< && cd OpenSceneGraph-2.8.5 && ./configure --prefix=$(INSTALL_DIR) CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  && $(MAKE) uninstall; $(MAKE) && ln -sf `which libtool` . && $(MAKE) install && cd .. && touch $@
 
 
 ossim-$(ossim_ver).tar.gz:
@@ -147,10 +164,10 @@ libkml-1.2.0.tar.gz:
 libkml.installed: libkml-1.2.0.tar.gz curl.installed
 	tar xaf $< && cd $(basename $(basename $<)) \
 	&& export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig:$(INSTALL_DIR)/share/pkgconfig \
-	&& export CFLAGS="-O3 -m64 -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -Wno-long-long" \
-	&& export CXXFLAGS="-O3 -m64 -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -Wno-long-long -Wno-unused-result" \
-	&& export CPPFLAGS="-O3 -m64 -fPIC -I$(INSTALL_DIR)/include -I/usr/local/include -I/usr/include -Wno-long-long -Wno-unused-result" \
-	&& export LDFLAGS="-m64 -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" \
+	&& export CFLAGS="-O3 $(m64_FLAG) -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -Wno-long-long" \
+	&& export CXXFLAGS="-O3 $(m64_FLAG) -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -Wno-long-long -Wno-unused-result" \
+	&& export CPPFLAGS="-O3 $(m64_FLAG) -fPIC -I$(INSTALL_DIR)/include -I/usr/local/include -I/usr/include -Wno-long-long -Wno-unused-result" \
+	&& export LDFLAGS="$(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" \
 	&& ./configure --prefix=$(INSTALL_DIR) $1 && sed -i 's/#include <sys\/stat.h>/#include <sys\/stat.h>\n#include <unistd.h>\n#include <sys\/unistd.h>/g' src/kml/base/file_posix.cc && make uninstall; make && make install && cd .. && touch $@
 
 libgeotiff-1.4.0.tar.gz:
@@ -180,7 +197,7 @@ spatialite-tools.installed: spatialite-tools-$(spatialite-tools_ver).tar.gz libs
 	$(call compile,CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" PKG_CONFIG_PATH=$(shell pwd)/libspatialite-$(libspatialite_ver):$(shell pwd)/freexl-$(freexl_ver):$(shell pwd)/readosm-1.0.0b)
 postgresql-9.1.14.tar.bz2:
 	wget http://ftp.postgresql.org/pub/source/v9.1.14/postgresql-9.1.14.tar.bz2
-postgresql.installed: postgresql-9.1.14.tar.bz2 texinfo.installed
+postgresql.installed: postgresql-9.1.14.tar.bz2 texinfo.installed readline.installed
 	$(call compile)
 postgis_ver = 2.1.8
 postgis-$(postgis_ver).tar.gz:
@@ -224,7 +241,7 @@ epsilon.installed: epsilon-0.9.2.tar.gz popt.installed
 popt-1.14.tar.gz:
 	wget http://rpm5.org/files/popt/popt-1.14.tar.gz
 popt.installed:popt-1.14.tar.gz
-	$(call compile)
+	$(call compile,)
 
 expat-$(expat_ver).tar.gz:
 	wget http://sourceforge.net/projects/expat/files/expat/$(expat_ver)/expat-$(expat_ver).tar.gz

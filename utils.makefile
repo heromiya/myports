@@ -36,6 +36,11 @@ isl_ver = 0.15
 
 nettle_ver = 2.0
 
+readline-6.3.tar.gz:
+	wget ftp://ftp.cwru.edu/pub/bash/readline-6.3.tar.gz
+
+readline.installed: readline-6.3.tar.gz
+	$(call compile)
 
 isl-$(isl_ver).tar.xz:
 	wget http://isl.gforge.inria.fr/isl-$(isl_ver).tar.xz
