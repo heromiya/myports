@@ -141,7 +141,7 @@ icewm.installed: icewm-$(icewm_ver).tar.gz
 	$(call compile)
 libxml2-$(libxml2_ver).tar.gz:
 	wget http://xmlsoft.org/sources/libxml2-$(libxml2_ver).tar.gz
-libxml2.installed: libxml2-$(libxml2_ver).tar.gz python.installed
+libxml2.installed: libxml2-$(libxml2_ver).tar.gz python.installed xz.installed
 	$(call compile,CFLAGS="$(CFLAGS) -shared")
 libxslt-$(libxslt_ver).tar.gz:
 	wget http://xmlsoft.org/sources/libxslt-$(libxslt_ver).tar.gz
