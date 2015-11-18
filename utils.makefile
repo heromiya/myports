@@ -28,18 +28,28 @@ parallel_ver = 20150722
 binutils_ver = 2.25.1
 openthreads_ver = 
 
-gcc_ver = 4.8.5
+gcc_ver = 4.9.2
 gmp_ver = 4.3.2
-mpfr_ver = 2.4.2
+mpfr_ver = 3.1.3
 isl_ver = 0.12.2
 cloog_ver = 0.18.0
+ppl_ver = 0.10.2
 
 nettle_ver = 2.0
 
 readline-6.3.tar.gz:
 	wget ftp://ftp.cwru.edu/pub/bash/readline-6.3.tar.gz
-
 readline.installed: readline-6.3.tar.gz
+	$(call compile,--disable-shared)
+
+gcc-$(gcc_ver).tar.bz2:
+	wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$(gcc_ver)/gcc-$(gcc_ver).tar.bz2
+gcc.installed: gcc-$(gcc_ver).tar.bz2 
+	$(subst ./configure,../gcc-$(gcc_ver)/configure,$(subst tar xaf $< && cd $(basename $(basename $<)),tar xaf $< && $(basename $(basename $<))/contrib/download_prerequisites && mkdir -p gcc-build && cd gcc-build,$(call compile,--with-gmp=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-mpfr-include=$(INSTALL_DIR)/include --with-mpc=$(INSTALL_DIR) --with-cloog=$(INSTALL_DIR) --with-isl=$(INSTALL_DIR) --disable-libjava CFLAGS="$(CFLAGS) -std=c99")))
+# ppl.installedgmp.installed mpfr.installed mpc.installed cloog.installed isl.installed
+ppl-$(ppl_ver).tar.bz2:
+	wget http://bugseng.com/products/ppl/download/ftp/releases/$(ppl_ver)/$@
+ppl.installed: ppl-$(ppl_ver).tar.bz2
 	$(call compile)
 
 cloog-$(cloog_ver).tar.gz:
@@ -161,24 +171,24 @@ qiv-2.3.1.tgz:
 qiv.installed: qiv-2.3.1.tgz gtk+.installed
 	tar xaf $< && cd qiv-2.3.1 && make && make install && cd .. && touch $@
 
-gcc-$(gcc_ver).tar.bz2:
-	wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$(gcc_ver)/gcc-$(gcc_ver).tar.bz2
-gcc.installed: gcc-$(gcc_ver).tar.bz2 gmp.installed mpfr.installed mpc.installed cloog.installed
-	$(subst tar xaf $< && cd $(basename $(basename $<)),tar xaf $< && mkdir -p gcc-build && cd gcc-build,$(call compile))
 
 gmp-$(gmp_ver).tar.xz:
 	wget --no-check-certificate https://gmplib.org/download/gmp/gmp-$(gmp_ver).tar.xz
 gmp.installed: gmp-$(gmp_ver).tar.xz
-	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
+	$(call compile,--disable-assembly --enable-cxx ABI=32)
+#	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) --enable-cxx CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
 
 mpfr-$(mpfr_ver).tar.bz2:
 	wget http://www.mpfr.org/mpfr-$(mpfr_ver)/mpfr-$(mpfr_ver).tar.bz2
 mpfr.installed: mpfr-$(mpfr_ver).tar.bz2
 	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
-mpc-0.8.2.tar.gz:
-	wget http://www.multiprecision.org/mpc/download/mpc-0.8.2.tar.gz
-mpc.installed: mpc-0.8.2.tar.gz gmp.installed
-	tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
+
+mpc_ver = 0.9
+mpc-$(mpc_ver).tar.gz:
+	wget http://www.multiprecision.org/mpc/download/mpc-$(mpc_ver).tar.gz
+mpc.installed: mpc-$(mpc_ver).tar.gz gmp.installed mpfr.installed
+	$(call compile)
+#	tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
 bison-$(bison_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/bison/bison-$(bison_ver).tar.xz
 bison.installed: bison-$(bison_ver).tar.xz
