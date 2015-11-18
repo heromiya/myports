@@ -28,11 +28,11 @@ parallel_ver = 20150722
 binutils_ver = 2.25.1
 openthreads_ver = 
 
-
-gcc_ver = 4.8.4
+gcc_ver = 4.8.5
 gmp_ver = 4.3.2
 mpfr_ver = 2.4.2
-isl_ver = 0.15
+isl_ver = 0.12.2
+cloog_ver = 0.18.0
 
 nettle_ver = 2.0
 
@@ -42,9 +42,14 @@ readline-6.3.tar.gz:
 readline.installed: readline-6.3.tar.gz
 	$(call compile)
 
-isl-$(isl_ver).tar.xz:
-	wget http://isl.gforge.inria.fr/isl-$(isl_ver).tar.xz
-isl.installed: isl-$(isl_ver).tar.xz
+cloog-$(cloog_ver).tar.gz:
+	wget -O $@ http://www.bastoul.net/cloog/pages/download/count.php3?url=./$@
+cloog.installed: cloog-$(cloog_ver).tar.gz
+	$(subst tar xaf $< && cd,tar xaf $< && sed -i 's/GIT_HEAD_ID="UNKNOWN"/GIT_HEAD_ID="isl-0.11.1"/' cloog-0.18.0/isl/configure && cd,$(call compile))
+
+isl-$(isl_ver).tar.bz2:
+	wget http://isl.gforge.inria.fr/$@
+isl.installed: isl-$(isl_ver).tar.bz2
 	$(call compile)
 
 binutils-$(binutils_ver).tar.bz2:
@@ -158,22 +163,22 @@ qiv.installed: qiv-2.3.1.tgz gtk+.installed
 
 gcc-$(gcc_ver).tar.bz2:
 	wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$(gcc_ver)/gcc-$(gcc_ver).tar.bz2
-gcc.installed: gcc-$(gcc_ver).tar.bz2 gmp.installed mpfr.installed mpc.installed isl.installed
-	cd gcc-build && ../gcc-$(gcc_ver)/configure --prefix=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-mpfr-include=$(INSTALL_DIR)/include --with-mpc=$(INSTALL_DIR) --disable-libjava CC=gcc LDFLAGS=-L$(INSTALL_DIR)/lib && make -j20 && make install && cd .. && touch $@
-#tar xaf $< && mkdir -p gcc-build && 
+gcc.installed: gcc-$(gcc_ver).tar.bz2 gmp.installed mpfr.installed mpc.installed cloog.installed
+	$(subst tar xaf $< && cd $(basename $(basename $<)),tar xaf $< && mkdir -p gcc-build && cd gcc-build,$(call compile))
+
 gmp-$(gmp_ver).tar.xz:
 	wget --no-check-certificate https://gmplib.org/download/gmp/gmp-$(gmp_ver).tar.xz
 gmp.installed: gmp-$(gmp_ver).tar.xz
-	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
 
 mpfr-$(mpfr_ver).tar.bz2:
 	wget http://www.mpfr.org/mpfr-$(mpfr_ver)/mpfr-$(mpfr_ver).tar.bz2
 mpfr.installed: mpfr-$(mpfr_ver).tar.bz2
-	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) CC=/usr/bin/gcc && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
 mpc-0.8.2.tar.gz:
 	wget http://www.multiprecision.org/mpc/download/mpc-0.8.2.tar.gz
-mpc.installed: mpc-0.8.2.tar.gz
-	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+mpc.installed: mpc-0.8.2.tar.gz gmp.installed
+	tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
 bison-$(bison_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/bison/bison-$(bison_ver).tar.xz
 bison.installed: bison-$(bison_ver).tar.xz
