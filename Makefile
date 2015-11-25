@@ -1,9 +1,9 @@
 UNAME_A = `uname -a`
-ifeq ($(filter x86_64,$(UNAME_A)),$(UNAME_A))
+#ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
-else
-m64_FLAG = -m32
-endif
+#else
+#m64_FLAG = -m32
+#endif
 
 ifneq (`which make`,)
 MAKE = make

@@ -37,6 +37,13 @@ ppl_ver = 0.10.2
 
 nettle_ver = 2.0
 
+make_ver = 4.1
+
+make-$(make_ver).tar.bz2:
+	wget http://ftp.gnu.org/gnu/make/make-$(make_ver).tar.bz2
+make.installed: make-$(make_ver).tar.bz2
+	$(call compile)
+
 readline-6.3.tar.gz:
 	wget ftp://ftp.cwru.edu/pub/bash/readline-6.3.tar.gz
 readline.installed: readline-6.3.tar.gz
