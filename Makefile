@@ -1,9 +1,11 @@
-UNAME_A = `uname -a`
-#ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
+INSTALL_DIR = $(HOME)/apps
+
+UNAME_A = $(shell uname -a)
+ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
-#else
-#m64_FLAG = -m32
-#endif
+else
+m64_FLAG = -m32
+endif
 
 ifneq (`which make`,)
 MAKE = make
@@ -17,7 +19,6 @@ else
 LIBTOOL = && ln -sf `which libtool` .
 endif
 
-INSTALL_DIR = $(HOME)/apps
 CFLAGS = -O2 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -mtune=native
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
 #CXXFLAGS= -O3 -fPIC
@@ -57,7 +58,6 @@ jpeg_ver = 9a
 
 ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
-
 
 all:
 
