@@ -8,7 +8,7 @@ m64_FLAG = -m32
 endif
 
 ifneq (`which make`,)
-MAKE = make
+MAKE = make -j10
 else
 MAKE = gmake
 endif
@@ -19,7 +19,7 @@ else
 LIBTOOL = && ln -sf `which libtool` .
 endif
 
-CFLAGS = -O2 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -mtune=native
+CFLAGS = -O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -mtune=native
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
 #CXXFLAGS= -O3 -fPIC
 #  -O3 -fPIC
@@ -28,12 +28,12 @@ compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export
 include utils.makefile
 
 sqlite_ver = 3081101
-gdal_ver = 1.10.1
+gdal_ver = 1.11.3
 #GDAL_OPT =  --with-fgdb=$(INSTALL_DIR) 
 expat_ver = 2.1.0
 proj_ver = 4.8.0
 geos_ver = 3.4.2
-grass_ver = 6.4.4
+grass_ver = 6.4.5
 mapserver_ver = 6.4.1
 python_ver = 2.7.9
 fftw_ver = 3.3.4
@@ -88,7 +88,7 @@ graphicsmagick.installed: GraphicsMagick-$(graphicmagick_ver).tar.bz2
 octave-$(octave_ver).tar.bz2:
 	wget ftp://ftp.gnu.org/gnu/octave/octave-$(octave_ver).tar.bz2
 octave.installed: octave-$(octave_ver).tar.bz2 graphicsmagick.installed
-	$(call compile,--disable-gui)
+	$(call compile,--disable-gui --disable-readline)
 
 
 #	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1  && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
@@ -234,7 +234,7 @@ hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib
 
 openjpeg-read-only:
 	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
-openjpeg.installed: openjpeg-read-only
+openjpeg.installed: openjpeg-read-only cmake.installed
 	cd openjpeg-read-only && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd .. && touch $@
 jasper-1.900.1.zip:
 	wget http://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.1.zip
