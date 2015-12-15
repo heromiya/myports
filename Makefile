@@ -158,11 +158,11 @@ libxslt.installed: libxslt-$(libxslt_ver).tar.gz libxml2.installed
 proj-$(proj_ver).tar.gz:
 	wget http://download.osgeo.org/proj/proj-$(proj_ver).tar.gz
 proj.installed: proj-$(proj_ver).tar.gz
-	$(call compile,--enable-shared CFLAGS="$(CFLAGS) -shared")
+	$(call compile,--enable-shared)
 geos-$(geos_ver).tar.bz2:
 	wget http://download.osgeo.org/geos/geos-$(geos_ver).tar.bz2
 geos.installed: geos-$(geos_ver).tar.bz2 proj.installed
-	$(call compile,CFLAGS="$(CFLAGS) -shared")
+	$(call compile,)
 fftw-$(fftw_ver).tar.gz:
 	wget http://www.fftw.org/fftw-$(fftw_ver).tar.gz
 fftw.installed: fftw-$(fftw_ver).tar.gz
