@@ -8,7 +8,7 @@ m64_FLAG = -m32
 endif
 
 ifneq (`which make`,)
-MAKE = make
+MAKE = make -j10
 else
 MAKE = gmake
 endif
@@ -33,13 +33,14 @@ gdal_ver = 1.11.3
 expat_ver = 2.1.0
 proj_ver = 4.8.0
 geos_ver = 3.4.2
-grass_ver = 6.4.4
+grass_ver = 6.4.5
 mapserver_ver = 6.4.1
 python_ver = 2.7.9
 fftw_ver = 3.3.4
 icewm_ver = 1.3.3
 qgis_ver = 2.6.1
 pyqt_version = 4.11.3
+numpy_version = 1.10.2
 sip_version = 4.16.4
 gsl_version = 1.16
 qiv_version = 2.3.1
@@ -88,7 +89,7 @@ graphicsmagick.installed: GraphicsMagick-$(graphicmagick_ver).tar.bz2
 octave-$(octave_ver).tar.bz2:
 	wget ftp://ftp.gnu.org/gnu/octave/octave-$(octave_ver).tar.bz2
 octave.installed: octave-$(octave_ver).tar.bz2 graphicsmagick.installed
-	$(call compile,--disable-gui)
+	$(call compile,--disable-gui --disable-readline)
 
 
 #	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1  && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
@@ -158,11 +159,11 @@ libxslt.installed: libxslt-$(libxslt_ver).tar.gz libxml2.installed
 proj-$(proj_ver).tar.gz:
 	wget http://download.osgeo.org/proj/proj-$(proj_ver).tar.gz
 proj.installed: proj-$(proj_ver).tar.gz
-	$(call compile,--enable-shared CFLAGS="$(CFLAGS) -shared")
+	$(call compile,--enable-shared)
 geos-$(geos_ver).tar.bz2:
 	wget http://download.osgeo.org/geos/geos-$(geos_ver).tar.bz2
 geos.installed: geos-$(geos_ver).tar.bz2 proj.installed
-	$(call compile,CFLAGS="$(CFLAGS) -shared")
+	$(call compile,)
 fftw-$(fftw_ver).tar.gz:
 	wget http://www.fftw.org/fftw-$(fftw_ver).tar.gz
 fftw.installed: fftw-$(fftw_ver).tar.gz
@@ -234,8 +235,8 @@ hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib
 
 openjpeg-read-only:
 	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
-openjpeg.installed: openjpeg-read-only
-	cd openjpeg-read-only && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd .. && touch $@
+openjpeg.installed: openjpeg-read-only cmake.installed
+	cd openjpeg-read-only && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ && make && make install && cd .. && touch $@
 jasper-1.900.1.zip:
 	wget http://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.1.zip
 jasper-1.900.1.uuid.tar.gz:
@@ -259,6 +260,12 @@ Python-$(python_ver).tar.xz:
 	wget --no-check-certificate http://www.python.org/ftp/python/$(python_ver)/Python-$(python_ver).tar.xz
 python.installed: Python-$(python_ver).tar.xz
 	$(call compile,--enable-shared)
+
+numpy-$(numpy_version).tar.gz:
+	wget http://sourceforge.net/projects/numpy/files/NumPy/$(numpy_version)/numpy-$(numpy_version).tar.gz
+numpy.installed:
+	tar xaf $<
+	cd numpy-$(numpy_version) && python setup.py build install --prefix $(INSTALL_DIR) && cd .. && touch $@
 
 grass-$(grass_ver).tar.gz:
 	wget http://grass.osgeo.org/grass64/source/grass-$(grass_ver).tar.gz

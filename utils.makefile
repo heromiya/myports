@@ -24,7 +24,7 @@ tar_ver =  1.28
 glibc_ver = 2.21
 gzip_ver = 1.3.13
 iojs_ver = 2.4.0
-parallel_ver = 20150722
+parallel_ver = 20151122
 binutils_ver = 2.25.1
 openthreads_ver = 
 
@@ -205,7 +205,7 @@ flex-$(flex_ver).tar.xz:
 flex.installed: flex-$(flex_ver).tar.xz
 	$(call compile)
 cmake-3.1.3.tar.gz:
-	wget http://www.cmake.org/files/v3.1/$@
+	wget --no-check-certificate http://www.cmake.org/files/v3.1/$@
 cmake.installed: cmake-3.1.3.tar.gz
 	$(compile)
 bash-$(bash_ver).tar.gz:
