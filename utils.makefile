@@ -28,7 +28,7 @@ parallel_ver = 20150722
 binutils_ver = 2.25.1
 openthreads_ver = 
 
-gcc_ver = 4.9.2
+gcc_ver = 4.9.3
 gmp_ver = 4.3.2
 mpfr_ver = 3.1.3
 isl_ver = 0.12.2

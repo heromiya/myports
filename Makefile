@@ -19,7 +19,7 @@ else
 LIBTOOL = && ln -sf `which libtool` .
 endif
 
-CFLAGS = -O2 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -mtune=native
+CFLAGS = -O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -mtune=native
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
 #CXXFLAGS= -O3 -fPIC
 #  -O3 -fPIC
@@ -28,7 +28,7 @@ compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export
 include utils.makefile
 
 sqlite_ver = 3081101
-gdal_ver = 1.10.1
+gdal_ver = 1.11.3
 #GDAL_OPT =  --with-fgdb=$(INSTALL_DIR) 
 expat_ver = 2.1.0
 proj_ver = 4.8.0
