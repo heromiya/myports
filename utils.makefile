@@ -38,6 +38,12 @@ ppl_ver = 0.10.2
 nettle_ver = 2.0
 
 make_ver = 4.1
+libtool_ver = 2.4.6
+
+libtool-$(libtool_ver).tar.gz:
+	wget ftp://ftp.gnu.org/gnu/libtool/$@
+libtool.installed: libtool-$(libtool_ver).tar.gz
+	$(call compile)
 
 make-$(make_ver).tar.bz2:
 	wget http://ftp.gnu.org/gnu/make/make-$(make_ver).tar.bz2

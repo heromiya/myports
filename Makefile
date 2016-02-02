@@ -19,8 +19,8 @@ else
 LIBTOOL = && ln -sf `which libtool` .
 endif
 
-CFLAGS = -O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -mtune=native
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
+CFLAGS = -O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -mtune=native -llzma -lm -lz -lsz
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -llzma -lm -lz -lsz
 #CXXFLAGS= -O3 -fPIC
 #  -O3 -fPIC
 compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
@@ -32,7 +32,7 @@ gdal_ver = 1.11.3
 #GDAL_OPT =  --with-fgdb=$(INSTALL_DIR) 
 expat_ver = 2.1.0
 proj_ver = 4.8.0
-geos_ver = 3.4.2
+geos_ver = 3.5.0
 grass_ver = 6.4.5
 mapserver_ver = 6.4.1
 python_ver = 2.7.9
@@ -48,6 +48,7 @@ qwt_ver = 6.0.2
 octave_ver = 3.8.2
 graphicmagick_ver = 1.3.21
 ossim_ver = 1.8.16
+librasterlite_ver = 1.0.0-rc0
 
 libxml2_ver = 2.9.1
 libxslt_ver = 1.1.28
@@ -55,18 +56,49 @@ libspatialite_ver = 4.3.0
 spatialite-tools_ver = 4.3.0
 freexl_ver = 1.0.2
 hdf4_ver = 4.2.10
-jpeg_ver = 9a
-
+jpeg_ver = 8d
+webp_ver = 0.5.0
+tiff_ver = 4.0.6
+cairo_ver = 1.14.6
+pixman_ver = 0.32.8
 ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
+R_ver = 3.1.3
 
 all:
 
+R-$(R_ver).tar.gz:
+	wget http://cran.r-project.org/src/base/R-3/$@
+R.installed: R-$(R_ver).tar.gz
+	$(call compile,--without-x --with-blas=/usr/lib/libblas.so --with-lapack=/usr/lib/liblapack.so)
+
+pixman-$(pixman_ver).tar.gz:
+	wget http://cairographics.org/releases/$@
+pixman.installed:pixman-$(pixman_ver).tar.gz
+	$(call compile)
+cairo-$(cairo_ver).tar.xz:
+	wget  http://cairographics.org/releases/$@
+cairo.installed: cairo-$(cairo_ver).tar.xz pixman.installed
+	$(call compile)
+
+tiff-$(tiff_ver).tar.gz:
+	wget http://download.osgeo.org/libtiff/$@
+tiff.installed: tiff-$(tiff_ver).tar.gz jpeg.installed
+	$(call compile)
+libwebp-$(webp_ver).tar.gz:
+	wget --no-check-certificate https://storage.googleapis.com/downloads.webmproject.org/releases/webp/$@
+libwebp.installed:libwebp-$(webp_ver).tar.gz
+	$(call compile)
+librasterlite2-$(librasterlite_ver).tar.gz:
+	wget http://www.gaia-gis.it/gaia-sins/$@
+librasterlite2.installed: librasterlite2-$(librasterlite_ver).tar.gz libwebp.installed tiff.installed cairo.installed
+	$(call compile,CFLAGS="$(CFLAGS) -lcairo")
+
 gdal-$(gdal_ver).tar.xz:
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/gdal-$(gdal_ver).tar.xz
-gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed jasper.installed
+gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed jasper.installed netcdf.installed
 	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/lib/libgdal* 
-	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --with-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=$(INSTALL_DIR)/bin/xml2-config  --without-pcraster --without-pcidsk)
+	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --with-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=$(INSTALL_DIR)/bin/xml2-config  --without-pcraster --without-pcidsk --with-netcdf=$(INSTALL_DIR))
 # CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 #--with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal
 OpenSceneGraph-2.8.5.zip:
@@ -86,11 +118,22 @@ GraphicsMagick-$(graphicmagick_ver).tar.bz2:
 graphicsmagick.installed: GraphicsMagick-$(graphicmagick_ver).tar.bz2
 	$(call compile,--enable-shared --with-quantum-depth=16 --disable-static --with-magick-plus-plus=yes)
 
+SuiteSparse-4.2.1.tar.gz:
+	wget http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.2.1.tar.gz
+SuiteSparse.installed: SuiteSparse-4.2.1.tar.gz
+	tar xaf $< && cd SuiteSparse && \
+	sed -i 's#INSTALL_LIB = /usr/local/lib#INSTALL_LIB = $(INSTALL_DIR)/lib#g; s#INSTALL_INCLUDE = /usr/local/include#INSTALL_INCLUDE = $(INSTALL_DIR)/include#g; s#BLAS = -lopenblas#BLAS = -lblas#g;' SuiteSparse_config/SuiteSparse_config.mk && make && make install && cd $(INSTALL_DIR)/lib && top=`pwd` && mkdir -p tmp && cd tmp && for f in libsuitesparseconfig libamd libcamd libcolamd libbtf libklu libldl libccolamd libumfpack libcholmod libcxsparse librbio libspqr; do ar vx ../$$f.a; done && for f in libsuitesparseconfig libamd libcamd libcolamd libbtf libklu libldl libccolamd libumfpack libcholmod libcxsparse librbio libspqr; do gcc -shared -o ../$$f.so *.o -lrt -llapack -lblas; done && cd ../../myports && touch $@
+
+#suitesparseconfig-4.0.2.tar.gz:
+#	wget http://dev.gentoo.org/%7Ebicatali/distfiles/suitesparseconfig-4.0.2.tar.gz
+#suitesparseconfig.installed: suitesparseconfig-4.0.2.tar.gz
+#	$(call compile)
+
 octave-$(octave_ver).tar.bz2:
 	wget ftp://ftp.gnu.org/gnu/octave/octave-$(octave_ver).tar.bz2
-octave.installed: octave-$(octave_ver).tar.bz2 graphicsmagick.installed
-	$(call compile,--disable-gui --disable-readline)
-
+octave.installed: octave-$(octave_ver).tar.bz2 graphicsmagick.installed SuiteSparse.installed readline.installed gnuplot.installed
+	$(call compile,--disable-gui --with-blas=/usr/lib/libblas.so --with-lapack=/usr/lib/liblapack.so --with-amd-includedir=$(INSTALL_DIR)/include --with-amd-libdir=$(INSTALL_DIR)/lib --with-camd-includedir=$(INSTALL_DIR)/include --with-camd-libdir=$(INSTALL_DIR)/lib --with-colamd-includedir=$(INSTALL_DIR)/include --with-colamd-libdir=$(INSTALL_DIR)/lib --with-ccolamd-includedir=$(INSTALL_DIR)/include --with-ccolamd-libdir=$(INSTALL_DIR)/lib --with-cxsparse-includedir=$(INSTALL_DIR)/include --with-cxsparse-libdir=$(INSTALL_DIR)/lib --with-umfpack-includedir=$(INSTALL_DIR)/include --with-umfpack-libdir=$(INSTALL_DIR)/lib --with-cholmod-includedir=$(INSTALL_DIR)/include --with-cholmod-libdir=$(INSTALL_DIR)/lib)
+# --disable-readline
 
 #	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1  && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
@@ -107,6 +150,10 @@ openssh-$(openssh_ver).tar.gz:
 openssh.installed: openssh-$(openssh_ver).tar.gz openssl.installed
 	$(call compile,--with-shared --with-libs --with-pie)
 
+gnuplot-4.6.7.tar.gz:
+	wget http://sourceforge.net/projects/gnuplot/files/gnuplot/4.6.7/$@
+gnuplot.installed: gnuplot-4.6.7.tar.gz
+	$(call compile)
 sip-$(sip_version).tar.gz:
 	wget http://sourceforge.net/projects/pyqt/files/sip/sip-$(sip_version)/sip-$(sip_version).tar.gz
 sip.installed: sip-$(sip_version).tar.gz
@@ -132,7 +179,9 @@ gsl.installed: gsl-$(gsl_version).tar.gz
 spatialindex-src-1.8.5.tar.gz:
 	wget http://download.osgeo.org/libspatialindex/spatialindex-src-1.8.5.tar.gz
 spatialindex.installed: spatialindex-src-1.8.5.tar.gz
-	tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64" && export CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64" && export CPPFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64" && export LDFLAGS="-L$(INSTALL_DIR)/lib64" && ./configure --prefix=$(INSTALL_DIR) $1 && make && make install && cd .. && touch $@
+	tar xaf $< && cd $(basename $(basename $<)) && \
+	export CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/libxml2/libxml -L$(INSTALL_DIR)/lib64" && \
+	export CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include  -I$(INSTALL_DIR)/include/libxml2/libxml -L$(INSTALL_DIR)/lib64" && export CPPFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib64" && export LDFLAGS="-L$(INSTALL_DIR)/lib64" && ./configure --prefix=$(INSTALL_DIR) $1 && make && make install && cd .. && touch $@
 qgis-$(qgis_ver).tar.bz2:
 	wget http://qgis.org/downloads/qgis-$(qgis_ver).tar.bz2
 0001-Fix-build-failure-with-gcc-4.4-bug-10762.patch:
@@ -181,7 +230,7 @@ libkml.installed: libkml-1.2.0.tar.gz curl.installed
 
 libgeotiff-1.4.0.tar.gz:
 	wget http://download.osgeo.org/geotiff/libgeotiff/libgeotiff-1.4.0.tar.gz
-libgeotiff.installed: libgeotiff-1.4.0.tar.gz jpeg.installed zlib.installed
+libgeotiff.installed: libgeotiff-1.4.0.tar.gz jpeg.installed zlib.installed tiff.installed
 	$(call compile,LIBS=-lproj --with-zlib --with-jpeg)
 sqlite-autoconf-$(sqlite_ver).tar.gz:
 	wget http://www.sqlite.org/2015/$@
@@ -191,7 +240,7 @@ libspatialite-$(libspatialite_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/libspatialite-sources/$@
 libspatialite.installed: libspatialite-$(libspatialite_ver).tar.gz sqlite.installed freexl.installed geos.installed libxml2.installed
 	rm -rf $(INSTALL_DIR)/lib/libspatialite.* $(INSTALL_DIR)/include/spatialite $(INSTALL_DIR)/include/spatialite.h
-	$(call compile,--disable-mathsql --with-geosconfig=$(INSTALL_DIR)/bin/geos-config --disable-examples LIBXML2_LIBS="-lxml2" LIBXML2_CFLAGS="-I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lxml2")
+	$(call compile,--enable-mathsql --enable-lwgeom --with-geosconfig=$(INSTALL_DIR)/bin/geos-config --disable-examples CFLAGS="$(CFLAGS) -std=c99" LIBXML2_LIBS="-lxml2" LIBXML2_CFLAGS="-I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lxml2")
 freexl-$(freexl_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/freexl-sources/$@
 freexl.installed: freexl-$(freexl_ver).tar.gz
@@ -203,7 +252,7 @@ readosm.installed: readosm-1.0.0b.tar.gz
 spatialite-tools-$(spatialite-tools_ver).tar.gz: 
 	wget http://www.gaia-gis.it/gaia-sins/spatialite-tools-sources/spatialite-tools-$(spatialite-tools_ver).tar.gz
 spatialite-tools.installed: spatialite-tools-$(spatialite-tools_ver).tar.gz libspatialite.installed freexl.installed readosm.installed
-	$(call compile,CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" PKG_CONFIG_PATH=$(shell pwd)/libspatialite-$(libspatialite_ver):$(shell pwd)/freexl-$(freexl_ver):$(shell pwd)/readosm-1.0.0b)
+	$(call compile,CFLAGS="-O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lspatialite -lxml2" CXXFLAGS="-O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lspatialite -lxml2" PKG_CONFIG_PATH=$(shell pwd)/libspatialite-$(libspatialite_ver):$(shell pwd)/freexl-$(freexl_ver):$(shell pwd)/readosm-1.0.0b)
 postgresql-9.1.14.tar.bz2:
 	wget http://ftp.postgresql.org/pub/source/v9.1.14/postgresql-9.1.14.tar.bz2
 postgresql.installed: postgresql-9.1.14.tar.bz2 texinfo.installed readline.installed
@@ -215,8 +264,8 @@ postgis.installed: postgis-$(postgis_ver).tar.gz postgresql.installed proj.insta
 	$(call compile,--with-projdir=$(INSTALL_DIR))
 jpegsrc.v$(jpeg_ver).tar.gz:
 	wget http://www.ijg.org/files/jpegsrc.v$(jpeg_ver).tar.gz
-jpeg.installed: jpegsrc.v$(jpeg_ver).tar.gz
-	tar xaf $< && cd jpeg-$(jpeg_ver) && ./configure --prefix=$(INSTALL_DIR) CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" && make && make install && cd .. && touch $@
+jpeg.installed: jpegsrc.v$(jpeg_ver).tar.gz libtool.installed
+	tar xaf $< && cd jpeg-$(jpeg_ver) &&  ln -sf `which libtool` && ./configure --enable-static --prefix=$(INSTALL_DIR) CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" && make && make install && cd .. && touch $@
 zlib-$(zlib_ver).tar.gz:
 	wget http://zlib.net/zlib-$(zlib_ver).tar.gz
 zlib.installed: zlib-$(zlib_ver).tar.gz
@@ -229,9 +278,17 @@ szip.installed: szip-2.1.tar.gz jpeg.installed
 hdf-$(hdf4_ver).tar.gz:
 	wget http://www.hdfgroup.org/ftp/HDF/releases/HDF$(hdf4_ver)/src/hdf-$(hdf4_ver).tar.gz
 hdf4.static.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed
-	$(call compile,--enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static CFLAGS="-O3 -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib" CXXFLAGS="-O3 -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib")
+	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure  --enable-static --enable-netcdf --enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static && $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
+
+#	$(call compile, --enable-static --enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static CFLAGS="-static $(CFLAGS)" CXXFLAGS="-static $(CFLAGS)")
+
+
 hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed bison.installed flex.installed
-	$(call compile, --enable-shared --disable-fortran --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
+	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) --enable-shared --enable-netcdf --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --disable-fortran && $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
+
+#	$(call compile, --prefix=$(INSTALL_DIR) --enable-shared --enable-netcdf --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
+# && cp -rf hdf-$(hdf4_ver)/hdf4/* ~/apps/
+# --disable-fortran
 
 openjpeg-read-only:
 	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
@@ -259,8 +316,7 @@ expat.installed: expat-$(expat_ver).tar.gz
 Python-$(python_ver).tar.xz:
 	wget --no-check-certificate http://www.python.org/ftp/python/$(python_ver)/Python-$(python_ver).tar.xz
 python.installed: Python-$(python_ver).tar.xz
-	$(call compile,--enable-shared)
-
+	tar xaf $< && cd $(basename $(basename $<)) && sed 's/#_socket socketmodule.c timemodule.c/_socket socketmodule.c timemodule.c/; s|#SSL=/usr/local/ssl|SSL=/usr|; s/#_ssl _ssl.c/_ssl _ssl.c/; s|#.*-DUSE_SSL -I$$(SSL)/include -I$$(SSL)/include/openssl|-DUSE_SSL -I$$(SSL)/include -I$$(SSL)/include/openssl|; s|#.*-L$$(SSL)/lib -lssl -lcrypto|-L$$(SSL)/lib -lssl -lcrypto|' Modules/Setup.dist >  Modules/Setup && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) --enable-shared && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
 numpy-$(numpy_version).tar.gz:
 	wget http://sourceforge.net/projects/numpy/files/NumPy/$(numpy_version)/numpy-$(numpy_version).tar.gz
 numpy.installed:
@@ -281,14 +337,163 @@ mapserver.installed: mapserver-$(mapserver_ver).tar.gz gdal.installed curl.insta
 gctpc20.tar.Z:
 	wget http://www.nco.ncep.noaa.gov/pmb/codes/nwprod/util/sorc/wgrib2.cd/grib2/gctpc20.tar.Z
 gctpc20.installed: gctpc20.tar.Z
-	tar xaf $< && cd gctpc/source && make && mv geolib.a $(INSTALL_DIR)/lib/libgctp.a && gcc -shared -fPIC -o libgctp.so *.c && mv libgctp.so $(INSTALL_DIR)/lib/ && cd $$OLDPWD && touch $@
+	tar xaf $< && cd gctpc/source && make && \
+	mv geolib.a $(INSTALL_DIR)/lib/libgctp.a && \
+	gcc -shared -fPIC -o libgctp.so *.c && \
+	mv libgctp.so $(INSTALL_DIR)/lib/ && \
+	mkdir -p $(INSTALL_DIR)/include/gctp && \
+	cp *.h  $(INSTALL_DIR)/include/gctp/ && \
+	cd $$OLDPWD && touch $@
+#	cp cproj.h  $(INSTALL_DIR)/include/gctp/ && 
 
 HDF-EOS2.19v1.00.tar.Z:
 	wget -nc ftp://edhs1.gsfc.nasa.gov/edhs/hdfeos/latest_release/HDF-EOS2.19v1.00.tar.Z
-HDF-EOS2.installed: HDF-EOS2.19v1.00.tar.Z szip.installed hdf4.static.installed
-	tar xaf $< && cd hdfeos && ./configure CC=$(INSTALL_DIR)/bin/h4cc LDFLAGS=-L$(INSTALL_DIR)/lib --with-szlib=$(INSTALL_DIR) --with-hdf4=$(INSTALL_DIR)/hdf4-static --prefix=$(INSTALL_DIR) && make && make install && cd .. && touch $@
+HDF-EOS2.installed: HDF-EOS2.19v1.00.tar.Z szip.installed hdf4.static.installed hdf4.shared.installed
+	 tar xaf $< && cd hdfeos && ./configure CC=$(INSTALL_DIR)/bin/h4cc LDFLAGS=-L$(INSTALL_DIR)/lib --with-szlib=$(INSTALL_DIR) --with-hdf4=$(INSTALL_DIR)/hdf4-static --prefix=$(INSTALL_DIR) && make && make install && cd .. && touch $@
+#
+#	ranlib $(INSTALL_DIR)/lib/libmfhdf.a
+espa-product-formatter:
+	git clone https://github.com/USGS-EROS/espa-product-formatter.git
+espa-product-formatter.installed: espa-product-formatter jbigkit.installed
+	cd $< && export PREFIX=$(INSTALL_DIR) && \
+	export HDFEOS_GCTPINC=$(INSTALL_DIR)/include && \
+	export HDFEOS_GCTPLIB=$(INSTALL_DIR)/lib && \
+	export TIFFINC=$(INSTALL_DIR)/include && \
+	export TIFFLIB=$(INSTALL_DIR)/lib && \
+	export GEOTIFF_INC=$(INSTALL_DIR)/include && \
+	export GEOTIFF_LIB=$(INSTALL_DIR)/lib && \
+	export HDFINC=$(INSTALL_DIR)/include && \
+	export HDFLIB=$(INSTALL_DIR)/lib && \
+	export HDFEOS_INC=$(INSTALL_DIR)/include/hdfeos && \
+	export HDFEOS_LIB=$(INSTALL_DIR)/lib && \
+	export JPEGINC=$(INSTALL_DIR)/include && \
+	export JPEGLIB=$(INSTALL_DIR)/lib && \
+	export XML2INC=$(INSTALL_DIR)/include/libxml2 && \
+	export XML2LIB=$(INSTALL_DIR)/lib && \
+	export JBIGINC=$(INSTALL_DIR)/include && \
+	export JBIGLIB=$(INSTALL_DIR)/lib && \
+	export ZLIBINC=$(INSTALL_DIR)/include && \
+	export ZLIBLIB=$(INSTALL_DIR)/lib && \
+	export ESPAINC=$(INSTALL_DIR)/include && \
+	export ESPALIB=$(INSTALL_DIR)/lib && \
+	export CFLAGS="$(CFLAGS) -m64" && make && make install && cd .. && touch $@
+
+
+jbigkit-2.1.tar.gz:
+	wget http://www.cl.cam.ac.uk/%7Emgk25/jbigkit/download/jbigkit-2.1.tar.gz
+
+jbigkit.installed: jbigkit-2.1.tar.gz
+	cd jbigkit-2.1 && make && cp libjbig/libjbig.a libjbig/libjbig85.a $(INSTALL_DIR)/lib/ && cp libjbig/*.h  $(INSTALL_DIR)/include/ && cd .. && touch $@
+
+hdf5-1.8.16.tar.bz2:
+	wget http://www.hdfgroup.org/ftp/HDF5/current/src/$@
+hdf5.installed: hdf5-1.8.16.tar.bz2
+	$(call compile)
+
+netcdf_ver = 4.3.3.1
+netcdf-$(netcdf_ver).tar.gz:
+#	wget --no-check-certificate https://github.com/Unidata/netcdf-c/archive/$@
+	wget ftp://ftp.unidata.ucar.edu/pub/netcdf/$@
+netcdf.installed: netcdf-$(netcdf_ver).tar.gz hdf5.installed
+	$(call compile,--enable-mmap --enable-jna --enable-hdf4)
+
+espa-surface-reflectance:
+	git clone -b ledaps_v2.3.1 https://github.com/USGS-EROS/espa-surface-reflectance.git
+
+new.ledaps.installed: espa-surface-reflectance espa-product-formatter.installed libgeotiff.installed gctpc20.installed hdf4.shared.installed HDF-EOS2.installed szip.installed netcdf.installed
+	cd espa-surface-reflectance/ledaps/ledapsSrc/src && export PREFIX=$(INSTALL_DIR) && \
+	export NCDF4INC=$(INSTALL_DIR)/include && \
+	export NCDF4LIB=$(INSTALL_DIR)/lib && \
+	export HDF5INC=$(INSTALL_DIR)/include && \
+	export HDF5LIB=$(INSTALL_DIR)/lib && \
+	export HDFINC=$(INSTALL_DIR)/include && \
+	export HDFLIB=$(INSTALL_DIR)/lib && \
+	export HDFEOS_INC=$(INSTALL_DIR)/include/hdfeos && \
+	export HDFEOS_LIB=$(INSTALL_DIR)/lib && \
+	export HDFEOS_GCTPINC=$(INSTALL_DIR)/include && \
+	export HDFEOS_GCTPLIB=$(INSTALL_DIR)/lib && \
+	export CURLINC=$(INSTALL_DIR)/include && \
+	export CURLLIB=$(INSTALL_DIR)/lib && \
+	export IDNINC=$(INSTALL_DIR)/include && \
+	export IDNLIB=$(INSTALL_DIR)/lib && \
+	export XML2INC=$(INSTALL_DIR)/include/libxml2 && \
+	export XML2LIB=$(INSTALL_DIR)/lib && \
+	export ZLIBINC=$(INSTALL_DIR)/include && \
+	export ZLIBLIB=$(INSTALL_DIR)/lib && \
+	export LZMALIB=$(INSTALL_DIR)/lib && \
+	export LZMAINC=$(INSTALL_DIR)/include && \
+	export ESPALIB=$(INSTALL_DIR)/lib && \
+	export ESPAINC=$(INSTALL_DIR)/include && \
+	export JPEGINC=$(INSTALL_DIR)/include && \
+	export JPEGLIB=$(INSTALL_DIR)/lib && \
+	export DISABLE_OPTIMIZATION=yes && \
+	export ENABLE_DEBUG=yes && \
+	export EXTRA_OPTIONS="$(CFLAGS) -L/usr/lib -lm" &&  \
+	sed -i "s#MATHLIB = -lm#MATHLIB = -L/usr/lib -lm#g" lndsr/Makefile && \
+	ln -fs $(INSTALL_DIR)/libxml2/libxml $(INSTALL_DIR) && make && make install && cd ../../../ && touch $@
+#	export BUILD_STATIC=yes && 
+
+ledapsAnc.installed: new.ledaps.installed netcdf.installed
+	ln -sf $(INSTALL_DIR)/include/netcdf.h $(INSTALL_DIR)/include/hdf4_netcdf.h && \
+	cd espa-surface-reflectance/ledaps/ledapsAncSrc && \
+	export PREFIX=$(INSTALL_DIR) && \
+	export NCDF4INC=$(INSTALL_DIR)/include && \
+	export NCDF4LIB=$(INSTALL_DIR)/lib && \
+	export HDF5INC=$(INSTALL_DIR)/include && \
+	export HDF5LIB=$(INSTALL_DIR)/lib && \
+	export CURLINC=$(INSTALL_DIR)/include && \
+	export CURLLIB=$(INSTALL_DIR)/lib && \
+	export IDNINC=$(INSTALL_DIR)/include && \
+	export IDNLIB=$(INSTALL_DIR)/lib && \
+	export NCDF4INC=$(INSTALL_DIR)/include && \
+	export NCDF4LIB=$(INSTALL_DIR)/lib && \
+	export HDF5INC=$(INSTALL_DIR)/include && \
+	export HDF5LIB=$(INSTALL_DIR)/lib && \
+	export HDFINC=$(INSTALL_DIR)/include && \
+	export HDFLIB=$(INSTALL_DIR)/lib && \
+	export HDFEOS_INC=$(INSTALL_DIR)/include/hdfeos && \
+	export HDFEOS_LIB=$(INSTALL_DIR)/lib && \
+	export HDFEOS_GCTPINC=$(INSTALL_DIR)/include && \
+	export HDFEOS_GCTPLIB=$(INSTALL_DIR)/lib && \
+	export CURLINC=$(INSTALL_DIR)/include && \
+	export CURLLIB=$(INSTALL_DIR)/lib && \
+	export IDNINC=$(INSTALL_DIR)/include && \
+	export IDNLIB=$(INSTALL_DIR)/lib && \
+	export XML2INC=$(INSTALL_DIR)/include/libxml2 && \
+	export XML2LIB=$(INSTALL_DIR)/lib && \
+	export ZLIBINC=$(INSTALL_DIR)/include && \
+	export ZLIBLIB=$(INSTALL_DIR)/lib && \
+	export LZMALIB=$(INSTALL_DIR)/lib && \
+	export LZMAINC=$(INSTALL_DIR)/include && \
+	export ESPALIB=$(INSTALL_DIR)/lib && \
+	export ESPAINC=$(INSTALL_DIR)/include && \
+	export JPEGINC=$(INSTALL_DIR)/include && \
+	export JPEGLIB=$(INSTALL_DIR)/lib && \
+	export ENABLE_DEBUG=yes && \
+	export DISABLE_OPTIMIZATION=yes && \
+	make && make install  && cd ../../../ && touch $@
+#	export BUILD_STATIC=yes && 
+
+#	export EXTRA_OPTIONS="$(CFLAGS) -lm -lmfhdf" &&  
 
 ledaps-read-only:
 	svn checkout http://ledaps.googlecode.com/svn/releases/version_1.3.1 ledaps-read-only
-ledaps.installed: libgeotiff.installed gctpc20.installed hdf4.static.installed HDF-EOS2.installed szip.installed
-	cd ledaps-read-only/ledapsSrc/src && export HDFEOS_GCTPINC=$(INSTALL_DIR)/include/gctp &&export HDFEOS_GCTPLIB=$(INSTALL_DIR)/lib && export TIFFINC=/usr/include && export TIFFLIB=/usr/lib && export GEOTIFF_INC=$(INSTALL_DIR)/include && export GEOTIFF_LIB=$(INSTALL_DIR)/lib && export HDFINC=$(INSTALL_DIR)/hdf4-static/include && export HDFLIB=$(INSTALL_DIR)/hdf4-static/lib && export HDFEOS_INC=$(INSTALL_DIR)/include/hdfeos && export HDFEOS_LIB=$(INSTALL_DIR)/lib && export JPEGINC=$(INSTALL_DIR)/include && export JPEGLIB=$(INSTALL_DIR)/lib && export BIN=$(INSTALL_DIR)/bin/ledaps && export SZIPINC=$(INSTALL_DIR)/include && export SZIPLIB=$(INSTALL_DIR)/lib && find -type f | grep Makefile$ | xargs -n 1 sed -i 's/-ldf /-ldf -lsz /g' && make && make install && cd $$OLDPWD && touch $@
+ledaps.installed: ledaps-read-only libgeotiff.installed gctpc20.installed hdf4.static.installed HDF-EOS2.installed szip.installed tiff.installed
+	cd ledaps-read-only/ledapsSrc/src && \
+	export HDFEOS_GCTPINC=$(INSTALL_DIR)/include/gctp && \
+	export HDFEOS_GCTPLIB=$(INSTALL_DIR)/lib && \
+	export TIFFINC=/usr/include && \
+	export TIFFLIB=/usr/lib && \
+	export GEOTIFF_INC=$(INSTALL_DIR)/include && \
+	export GEOTIFF_LIB=$(INSTALL_DIR)/lib && \
+	export HDFINC=$(INSTALL_DIR)/hdf4-static/include && \
+	export HDFLIB=$(INSTALL_DIR)/hdf4-static/lib && \
+	export HDFEOS_INC=$(INSTALL_DIR)/include/hdfeos && \
+	export HDFEOS_LIB=$(INSTALL_DIR)/lib && \
+	export JPEGINC=$(INSTALL_DIR)/include && \
+	export JPEGLIB=$(INSTALL_DIR)/lib && \
+	export BIN=$(INSTALL_DIR)/bin/ledaps && \
+	export SZIPINC=$(INSTALL_DIR)/include && \
+	export SZIPLIB=$(INSTALL_DIR)/lib && \
+	find -type f | grep Makefile$ | xargs -n 1 sed -i 's/-ldf /-ldf -lsz /g' && \
+	make && make install && cd $$OLDPWD && touch $@
