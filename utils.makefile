@@ -27,6 +27,7 @@ iojs_ver = 2.4.0
 parallel_ver = 20151122
 binutils_ver = 2.25.1
 openthreads_ver = 
+gawk_ver = 4.1.3
 
 gcc_ver = 4.9.3
 gmp_ver = 4.3.2
@@ -39,6 +40,18 @@ nettle_ver = 2.0
 
 make_ver = 4.1
 libtool_ver = 2.4.6
+
+perl_ver = 5.22.1
+
+perl-$(perl_ver).tar.gz:
+	wget http://www.cpan.org/src/5.0/$@
+perl.installed: perl-$(perl_ver).tar.gz
+	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure.gnu --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
+
+gawk-$(gawk_ver).tar.xz:
+	wget http://ftp.gnu.org/gnu/gawk/$@
+gawk.installed: gawk-$(gawk_ver).tar.xz
+	$(call compile)
 
 libtool-$(libtool_ver).tar.gz:
 	wget ftp://ftp.gnu.org/gnu/libtool/$@

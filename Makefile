@@ -98,9 +98,9 @@ gdal-$(gdal_ver).tar.xz:
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/gdal-$(gdal_ver).tar.xz
 gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed jasper.installed netcdf.installed
 	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/lib/libgdal* 
-	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --with-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=$(INSTALL_DIR)/bin/xml2-config  --without-pcraster --without-pcidsk --with-netcdf=$(INSTALL_DIR))
+	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --with-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=$(INSTALL_DIR)/bin/xml2-config  --without-pcraster --without-pcidsk --with-netcdf=$(INSTALL_DIR) --with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal)
 # CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
-#--with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal
+
 OpenSceneGraph-2.8.5.zip:
 	wget http://www.openscenegraph.org/downloads/stable_releases/OpenSceneGraph-2.8.5/source/OpenSceneGraph-2.8.5.zip
 OpenSceneGraph.installed: OpenSceneGraph-2.8.5.zip
