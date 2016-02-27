@@ -8,30 +8,32 @@ m64_FLAG = -m32
 endif
 
 ifneq (`which make`,)
-MAKE = make -j10
+MAKE = make
 else
 MAKE = gmake
 endif
 
-ifneq (`which libtool`,)
-LIBTOOL = 
-else
-LIBTOOL = && ln -sf `which libtool` .
-endif
+#ifneq (`which libtool`,)
+#LIBTOOL = 
+#else
+#LIBTOOL = && ln -sf `which libtool` .
+#endif
 
-CFLAGS = -O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -mtune=native
+CFLAGS = -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
-#CXXFLAGS= -O3 -fPIC
-#  -O3 -fPIC
-compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
-
+#CXXFLAGS= -O3 -fPIC  $(m64_FLAG)
+#  -O3 -fPIC  -mtune=native
+compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc-4.8 && export CXX=g++-4.8 && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
+#
 include utils.makefile
 
 sqlite_ver = 3081101
-gdal_ver = 1.11.3
+#gdal_ver = 1.11.4
+gdal_ver = 1.8.1
 #GDAL_OPT =  --with-fgdb=$(INSTALL_DIR) 
 expat_ver = 2.1.0
 proj_ver = 4.8.0
+#geos_ver = 3.5.0
 geos_ver = 3.4.2
 grass_ver = 6.4.5
 mapserver_ver = 6.4.1
@@ -62,13 +64,17 @@ OpenSceneGraph_ver = 2.8.5
 
 all:
 
-gdal-$(gdal_ver).tar.xz:
-	wget http://download.osgeo.org/gdal/$(gdal_ver)/gdal-$(gdal_ver).tar.xz
-gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed jasper.installed
+gdal-$(gdal_ver).tar.gz:
+#	wget http://download.osgeo.org/gdal/$@
+	wget http://download.osgeo.org/gdal/$(gdal_ver)/$@
+gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed jasper.installed
 	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/lib/libgdal* 
-	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --with-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=$(INSTALL_DIR)/bin/xml2-config  --without-pcraster --without-pcidsk)
+	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-fPIC" && export CFLAGS="-fPIC" && export CXXFLAGS="-fPIC" && export CPPFLAGS="-fPIC" && ./configure --prefix=$(INSTALL_DIR) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --without-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=$(INSTALL_DIR)/bin/xml2-config  --without-pcraster --without-pcidsk --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal --without-ecw --without-netcdf --without-hdf4 --without-hdf5 --without-grass --without-libgrass --with-libtiff=internal --with-geotiff=internal && $(MAKE) &&  $(MAKE) install && cd .. && touch $@
+
+
+#$(call compile,$(GDAL_OPT))
 # CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
-#--with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal
+# libgeotiff.installed
 OpenSceneGraph-2.8.5.zip:
 	wget http://www.openscenegraph.org/downloads/stable_releases/OpenSceneGraph-2.8.5/source/OpenSceneGraph-2.8.5.zip
 OpenSceneGraph.installed: OpenSceneGraph-2.8.5.zip
@@ -179,10 +185,11 @@ libkml.installed: libkml-1.2.0.tar.gz curl.installed
 	&& export LDFLAGS="$(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" \
 	&& ./configure --prefix=$(INSTALL_DIR) $1 && sed -i 's/#include <sys\/stat.h>/#include <sys\/stat.h>\n#include <unistd.h>\n#include <sys\/unistd.h>/g' src/kml/base/file_posix.cc && make uninstall; make && make install && cd .. && touch $@
 
-libgeotiff-1.4.0.tar.gz:
-	wget http://download.osgeo.org/geotiff/libgeotiff/libgeotiff-1.4.0.tar.gz
-libgeotiff.installed: libgeotiff-1.4.0.tar.gz jpeg.installed zlib.installed
-	$(call compile,LIBS=-lproj --with-zlib --with-jpeg)
+libgeotiff-1.4.1.tar.gz:
+	wget http://download.osgeo.org/geotiff/libgeotiff/libgeotiff-1.4.1.tar.gz
+libgeotiff.installed: libgeotiff-1.4.1.tar.gz jpeg.installed zlib.installed proj.installed
+	$(call compile, --with-proj=$(INSTALL_DIR)/lib --with-zlib --with-jpeg=$(INSTALL_DIR)/lib)
+#LIBS="-L/home/heromiya/apps/lib -lproj -L/home/heromiya/apps/lib -ljpeg -lz -lm -L/home/heromiya/apps/lib -ltiff"
 sqlite-autoconf-$(sqlite_ver).tar.gz:
 	wget http://www.sqlite.org/2015/$@
 sqlite.installed: sqlite-autoconf-$(sqlite_ver).tar.gz
@@ -191,7 +198,7 @@ libspatialite-$(libspatialite_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/libspatialite-sources/$@
 libspatialite.installed: libspatialite-$(libspatialite_ver).tar.gz sqlite.installed freexl.installed geos.installed libxml2.installed
 	rm -rf $(INSTALL_DIR)/lib/libspatialite.* $(INSTALL_DIR)/include/spatialite $(INSTALL_DIR)/include/spatialite.h
-	$(call compile,--disable-mathsql --with-geosconfig=$(INSTALL_DIR)/bin/geos-config --disable-examples LIBXML2_LIBS="-lxml2" LIBXML2_CFLAGS="-I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lxml2")
+	$(call compile,--disable-mathsql --with-geosconfig=$(INSTALL_DIR)/bin/geos-config --disable-examples LIBXML2_LIBS="-lxml2" LIBXML2_CFLAGS="-I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lxml2" CFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/geos" CXXFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/geos" CPPFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/geos" LDFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/geos")
 freexl-$(freexl_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/freexl-sources/$@
 freexl.installed: freexl-$(freexl_ver).tar.gz
@@ -204,9 +211,10 @@ spatialite-tools-$(spatialite-tools_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/spatialite-tools-sources/spatialite-tools-$(spatialite-tools_ver).tar.gz
 spatialite-tools.installed: spatialite-tools-$(spatialite-tools_ver).tar.gz libspatialite.installed freexl.installed readosm.installed
 	$(call compile,CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" PKG_CONFIG_PATH=$(shell pwd)/libspatialite-$(libspatialite_ver):$(shell pwd)/freexl-$(freexl_ver):$(shell pwd)/readosm-1.0.0b)
-postgresql-9.1.14.tar.bz2:
-	wget http://ftp.postgresql.org/pub/source/v9.1.14/postgresql-9.1.14.tar.bz2
-postgresql.installed: postgresql-9.1.14.tar.bz2 texinfo.installed readline.installed
+postgresql_ver = 9.1.20
+postgresql-$(postgresql_ver).tar.bz2:
+	wget http://ftp.postgresql.org/pub/source/v$(postgresql_ver)/postgresql-$(postgresql_ver).tar.bz2
+postgresql.installed: postgresql-$(postgresql_ver).tar.bz2 texinfo.installed readline.installed
 	$(call compile)
 postgis_ver = 2.1.8
 postgis-$(postgis_ver).tar.gz:
@@ -235,7 +243,7 @@ hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib
 
 openjpeg-read-only:
 	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
-openjpeg.installed: openjpeg-read-only cmake.installed
+openjpeg.installed: openjpeg-read-only
 	cd openjpeg-read-only && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ && make && make install && cd .. && touch $@
 jasper-1.900.1.zip:
 	wget http://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.1.zip
