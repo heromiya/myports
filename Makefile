@@ -18,8 +18,8 @@ LIBTOOL =
 else
 LIBTOOL = && ln -sf `which libtool` .
 endif
-
-CFLAGS = -O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -mtune=native -llzma -lm -lz -lsz
+#
+CFLAGS = -O2 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib -llzma -lm -lz -lsz
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -llzma -lm -lz -lsz
 #CXXFLAGS= -O3 -fPIC
 #  -O3 -fPIC
@@ -64,8 +64,47 @@ pixman_ver = 0.32.8
 ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
 R_ver = 3.1.3
+laszip_ver = 2.2.0
 
 all:
+
+pdal:
+	git clone https://github.com/PDAL/PDAL.git pdal && cd pdal && git checkout tags/1.0.1
+#gdal.installed
+pdal.installed: pdal 
+	cd pdal && mkdir -p build && cd build && cmake -G "Unix Makefiles" ../ -DBUILD_PLUGIN_PCL=ON -DBUILD_PLUGIN_P2G=ON -DBUILD_PLUGIN_PYTHON=ON -DPDAL_HAVE_GEOS=YES -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DBOOST_ROOT=$(INSTALL_DIR)/myports/boost_1_60_0  -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DBoost_LIBRARY_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/stage/lib && make && make install && cd ../../ && touch $@
+#-DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/boost
+pcl:
+	git clone https://github.com/PointCloudLibrary/pcl.git
+pcl.installed: pcl flann.installed eigen.installed boost.installed
+	cd pcl && mkdir -p build && cd build && git fetch origin --tags && git checkout tags/pcl-1.7.2 && cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBUILD_outofcore:BOOL=OFF -DWITH_QT:BOOL=ON -DWITH_VTK:BOOL=ON -DWITH_OPENNI:BOOL=OFF -DWITH_CUDA:BOOL=OFF -DWITH_LIBUSB:BOOL=OFF -DBUILD_people:BOOL=OFF -DBUILD_surface:BOOL=ON -DBUILD_tools:BOOL=ON -DBUILD_visualization:BOOL=ON -DBUILD_sample_consensus:BOOL=ON -DBUILD_tracking:BOOL=OFF -DBUILD_stereo:BOOL=OFF -DBUILD_keypoints:BOOL=OFF -DBUILD_pipeline:BOOL=ON -DCMAKE_CXX_FLAGS="-std=c++11" -DBUILD_io:BOOL=ON -DBUILD_octree:BOOL=ON -DBUILD_segmentation:BOOL=ON -DBUILD_search:BOOL=ON -DBUILD_geometry:BOOL=ON -DBUILD_filters:BOOL=ON -DBUILD_features:BOOL=ON -DBUILD_kdtree:BOOL=ON -DBUILD_common:BOOL=ON -DBUILD_ml:BOOL=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 && make && make install && cd ../.. && touch $@
+
+flann-1.8.4-src.zip:
+	wget http://www.cs.ubc.ca/research/flann/uploads/FLANN/$@
+
+flann.installed:flann-1.8.4-src.zip
+	unzip $< && cd flann-1.8.4-src && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ && make && make install && cd ../.. && touch $@
+
+eigen.3.2.8.tar.bz2:
+	wget --no-check-certificate http://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2 -O $@
+eigen.installed: eigen.3.2.8.tar.bz2
+	tar xaf $< && cd eigen-* && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd ../.. && touch $@
+
+points2grid:
+	git clone https://github.com/CRREL/points2grid.git
+
+points2grid.installed: points2grid
+	cd points2grid && mkdir -p build && cd build && export CMAKE_PREFIX_PATH=$(INSTALL_DIR) && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ && make && make install && cd ../.. && touch $@
+
+boost_1_60_0.tar.gz:
+	wget --no-check-certificate http://sourceforge.net/projects/boost/files/boost/1.60.0/$@
+boost.installed: boost_1_60_0.tar.gz
+	tar xaf $< && cd  boost_1_60_0 && ./bootstrap.sh && ./b2 && cd .. && touch $@
+
+laszip-src-$(laszip_ver).tar.gz:
+	wget --no-check-certificate https://github.com/LASzip/LASzip/releases/download/v$(laszip_ver)/$@
+laszip.installed: laszip-src-$(laszip_ver).tar.gz
+	$(call compile)
 
 R-$(R_ver).tar.gz:
 	wget http://cran.r-project.org/src/base/R-3/$@
@@ -96,9 +135,9 @@ librasterlite2.installed: librasterlite2-$(librasterlite_ver).tar.gz libwebp.ins
 
 gdal-$(gdal_ver).tar.xz:
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/gdal-$(gdal_ver).tar.xz
-gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed jasper.installed netcdf.installed
+gdal.installed: gdal-$(gdal_ver).tar.xz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed netcdf.installed
 	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/lib/libgdal* 
-	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --with-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=$(INSTALL_DIR)/bin/xml2-config  --without-pcraster --without-pcidsk --with-netcdf=$(INSTALL_DIR) --with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal)
+	$(call compile,$(GDAL_OPT) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --without-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --without-jasper --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=$(INSTALL_DIR)/bin/xml2-config  --without-pcraster --without-pcidsk --with-netcdf=$(INSTALL_DIR) --with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal)
 # CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 OpenSceneGraph-2.8.5.zip:
