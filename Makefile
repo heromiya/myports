@@ -62,7 +62,55 @@ jpeg_ver = 9a
 ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
 
+laszip_ver = 2.2.0
+
 all:
+
+zoo-src:
+	svn checkout http://svn.zoo-project.org/svn/trunk zoo-src
+
+zoo.installed:
+	cd zoo-src/thirds/cgic206 && make
+	cd zoo-src/zoo-project/zoo-kernel && autoconf && ./configure --prefix=$(INSTALL_DIR) --with-proj=$(INSTALL_DIR) --with-js --with-python && make && make install
+
+
+pdal:
+	git clone https://github.com/PDAL/PDAL.git pdal && cd pdal && git checkout tags/1.0.1
+#gdal.installed
+pdal.installed: pdal cmake.installed
+	cd pdal && mkdir -p build && cd build && cmake -G "Unix Makefiles" ../ -DBUILD_PLUGIN_PCL=ON -DBUILD_PLUGIN_P2G=ON -DBUILD_PLUGIN_PYTHON=ON -DPDAL_HAVE_GEOS=YES -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DBOOST_ROOT=$(INSTALL_DIR)/myports/boost_1_60_0  -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DBoost_LIBRARY_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/stage/lib && make && make install && cd ../../ && touch $@
+#-DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/boost
+pcl:
+	git clone https://github.com/PointCloudLibrary/pcl.git
+pcl.installed: pcl flann.installed eigen.installed boost.installed
+	cd pcl && mkdir -p build && cd build && git fetch origin --tags && git checkout tags/pcl-1.7.2 && cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBUILD_outofcore:BOOL=OFF -DWITH_QT:BOOL=ON -DWITH_VTK:BOOL=ON -DWITH_OPENNI:BOOL=OFF -DWITH_CUDA:BOOL=OFF -DWITH_LIBUSB:BOOL=OFF -DBUILD_people:BOOL=OFF -DBUILD_surface:BOOL=ON -DBUILD_tools:BOOL=ON -DBUILD_visualization:BOOL=ON -DBUILD_sample_consensus:BOOL=ON -DBUILD_tracking:BOOL=OFF -DBUILD_stereo:BOOL=OFF -DBUILD_keypoints:BOOL=OFF -DBUILD_pipeline:BOOL=ON -DCMAKE_CXX_FLAGS="-std=c++11" -DBUILD_io:BOOL=ON -DBUILD_octree:BOOL=ON -DBUILD_segmentation:BOOL=ON -DBUILD_search:BOOL=ON -DBUILD_geometry:BOOL=ON -DBUILD_filters:BOOL=ON -DBUILD_features:BOOL=ON -DBUILD_kdtree:BOOL=ON -DBUILD_common:BOOL=ON -DBUILD_ml:BOOL=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 && make && make install && cd ../.. && touch $@
+
+flann-1.8.4-src.zip:
+	wget http://www.cs.ubc.ca/research/flann/uploads/FLANN/$@
+
+flann.installed:flann-1.8.4-src.zip
+	unzip $< && cd flann-1.8.4-src && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ && make && make install && cd ../.. && touch $@
+
+eigen.3.2.8.tar.bz2:
+	wget --no-check-certificate http://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2 -O $@
+eigen.installed: eigen.3.2.8.tar.bz2
+	tar xaf $< && cd eigen-* && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd ../.. && touch $@
+
+points2grid/CMakeLists.txt: boost.installed
+	git clone https://github.com/CRREL/points2grid.git && touch points2grid
+
+points2grid.installed: points2grid
+	cd points2grid && mkdir -p build && cd build && export CMAKE_PREFIX_PATH=$(INSTALL_DIR) && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ && make && make install && cd ../.. && touch $@
+
+boost_1_60_0.tar.gz:
+	wget --no-check-certificate http://sourceforge.net/projects/boost/files/boost/1.60.0/$@
+boost.installed: boost_1_60_0.tar.gz
+	tar xaf $< && cd  boost_1_60_0 && ./bootstrap.sh && ./b2 && cd .. && touch $@
+
+laszip-src-$(laszip_ver).tar.gz:
+	wget --no-check-certificate https://github.com/LASzip/LASzip/releases/download/v$(laszip_ver)/$@
+laszip.installed: laszip-src-$(laszip_ver).tar.gz
+	$(call compile)
 
 gdal-$(gdal_ver).tar.gz:
 #	wget http://download.osgeo.org/gdal/$@
