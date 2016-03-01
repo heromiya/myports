@@ -24,8 +24,11 @@ LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
 #CXXFLAGS= -O3 -fPIC  $(m64_FLAG)
 #  -O3 -fPIC  -mtune=native
 compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
+
+cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 .. && make && make install && cd ../../ && touch $@
 #
 include utils.makefile
+include makefile.d/*
 
 sqlite_ver = 3081101
 #gdal_ver = 1.11.4
