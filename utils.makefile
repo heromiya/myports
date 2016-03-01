@@ -8,7 +8,7 @@ flex_ver = 2.5.39
 raptor_ver = 2.0.15
 emacs_ver = 24.4
 screen_ver = 4.2.1
-cmake_ver = 3.1.3
+cmake_ver = 3.4.3
 w3m_version = 0.5.3
 wget_ver = 1.16.1
 openssh_ver = 6.7p1
@@ -38,6 +38,11 @@ ppl_ver = 0.10.2
 nettle_ver = 2.0
 
 make_ver = 4.1
+
+easy_install.installed:
+	wget http://peak.telecommunity.com/dist/ez_setup.py && python ez_setup.py && touch $@
+pip.installed: easy_install.installed
+	easy_install pip && touch $@
 
 make-$(make_ver).tar.bz2:
 	wget http://ftp.gnu.org/gnu/make/make-$(make_ver).tar.bz2
@@ -204,9 +209,9 @@ flex-$(flex_ver).tar.xz:
 	wget http://sourceforge.net/projects/flex/files/flex-$(flex_ver).tar.xz
 flex.installed: flex-$(flex_ver).tar.xz
 	$(call compile)
-cmake-3.1.3.tar.gz:
-	wget --no-check-certificate http://www.cmake.org/files/v3.1/$@
-cmake.installed: cmake-3.1.3.tar.gz
+cmake-$(cmake_ver).tar.gz:
+	wget --no-check-certificate http://www.cmake.org/files/v3.4/$@
+cmake.installed: cmake-$(cmake_ver).tar.gz
 	$(compile)
 bash-$(bash_ver).tar.gz:
 	wget http://ftp.gnu.org/gnu/bash/bash-$(bash_ver).tar.gz

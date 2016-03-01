@@ -23,13 +23,13 @@ CFLAGS = -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/us
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
 #CXXFLAGS= -O3 -fPIC  $(m64_FLAG)
 #  -O3 -fPIC  -mtune=native
-compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc-4.8 && export CXX=g++-4.8 && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
 #
 include utils.makefile
 
 sqlite_ver = 3081101
 #gdal_ver = 1.11.4
-gdal_ver = 1.8.1
+gdal_ver = 1.9.2
 #GDAL_OPT =  --with-fgdb=$(INSTALL_DIR) 
 expat_ver = 2.1.0
 proj_ver = 4.8.0
@@ -72,12 +72,30 @@ zoo-src:
 zoo.installed:
 	cd zoo-src/thirds/cgic206 && make
 	cd zoo-src/zoo-project/zoo-kernel && autoconf && ./configure --prefix=$(INSTALL_DIR) --with-proj=$(INSTALL_DIR) --with-js --with-python && make && make install
+	cd zoo-src/zoo-project/zoo-services/utils/registry && make && cp cgi-env/* /usr/lib/cgi-bin
+libLAS-1.8.0.tar.bz2:
+	wget http://download.osgeo.org/liblas/$@
+liblas.installed: libLAS-1.8.0.tar.bz2
+	tar xaf $< && cd libLAS-1.8.0 && mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) .. && make && make install
 
+lidar2dems:
+	git clone https://github.com/Applied-GeoSolutions/lidar2dems.git
+lidar2dems.installed: lidar2dems gippy.installed pdal.installed pcl.installed points2grid.installed laszip.installed cimg.installed
+	cd lidar2dems && python setup.py install && touch $@
+
+CImg_1.6.9.zip:
+	wget http://cimg.eu/files/$@
+
+cimg.installed: CImg_1.6.9.zip
+	unzip -o $< && cd CImg-1.6.9 && cp CImg.h $(INSTALL_DIR)/include && touch $@
+
+gippy.installed: pip.installed
+	pip install gippy && touch $@
 
 pdal:
 	git clone https://github.com/PDAL/PDAL.git pdal && cd pdal && git checkout tags/1.0.1
 #gdal.installed
-pdal.installed: pdal cmake.installed
+pdal.installed: pdal cmake.installed numpy.installed
 	cd pdal && mkdir -p build && cd build && cmake -G "Unix Makefiles" ../ -DBUILD_PLUGIN_PCL=ON -DBUILD_PLUGIN_P2G=ON -DBUILD_PLUGIN_PYTHON=ON -DPDAL_HAVE_GEOS=YES -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DBOOST_ROOT=$(INSTALL_DIR)/myports/boost_1_60_0  -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DBoost_LIBRARY_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/stage/lib && make && make install && cd ../../ && touch $@
 #-DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/boost
 pcl:
@@ -115,9 +133,9 @@ laszip.installed: laszip-src-$(laszip_ver).tar.gz
 gdal-$(gdal_ver).tar.gz:
 #	wget http://download.osgeo.org/gdal/$@
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/$@
-gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed xz.installed hdf4.shared.installed epsilon.installed postgresql.installed jasper.installed
+gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed  hdf4.shared.installed epsilon.installed postgresql.installed
 	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/lib/libgdal* 
-	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-fPIC" && export CFLAGS="-fPIC" && export CXXFLAGS="-fPIC" && export CPPFLAGS="-fPIC" && ./configure --prefix=$(INSTALL_DIR) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --without-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=$(INSTALL_DIR)/bin/xml2-config  --without-pcraster --without-pcidsk --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal --without-ecw --without-netcdf --without-hdf4 --without-hdf5 --without-grass --without-libgrass --with-libtiff=internal --with-geotiff=internal && $(MAKE) &&  $(MAKE) install && cd .. && touch $@
+	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-fPIC" && export CFLAGS="-fPIC" && export CXXFLAGS="-fPIC" && export CPPFLAGS="-fPIC" && ./configure --prefix=$(INSTALL_DIR) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --without-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=/usr/bin/xml2-config  --without-pcraster --without-pcidsk --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal --without-ecw --without-netcdf --without-hdf4 --without-hdf5 --without-grass --without-libgrass --with-libtiff=internal --with-geotiff=internal && $(MAKE) &&  $(MAKE) install && cd .. && touch $@
 
 
 #$(call compile,$(GDAL_OPT))
@@ -204,11 +222,11 @@ icewm.installed: icewm-$(icewm_ver).tar.gz
 	$(call compile)
 libxml2-$(libxml2_ver).tar.gz:
 	wget http://xmlsoft.org/sources/libxml2-$(libxml2_ver).tar.gz
-libxml2.installed: libxml2-$(libxml2_ver).tar.gz python.installed xz.installed
+libxml2.installed: libxml2-$(libxml2_ver).tar.gz python.installed
 	$(call compile,CFLAGS="$(CFLAGS) -shared")
 libxslt-$(libxslt_ver).tar.gz:
 	wget http://xmlsoft.org/sources/libxslt-$(libxslt_ver).tar.gz
-libxslt.installed: libxslt-$(libxslt_ver).tar.gz libxml2.installed
+libxslt.installed: libxslt-$(libxslt_ver).tar.gz
 	$(call compile)
 proj-$(proj_ver).tar.gz:
 	wget http://download.osgeo.org/proj/proj-$(proj_ver).tar.gz
@@ -244,7 +262,7 @@ sqlite.installed: sqlite-autoconf-$(sqlite_ver).tar.gz
 	$(call compile,)
 libspatialite-$(libspatialite_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/libspatialite-sources/$@
-libspatialite.installed: libspatialite-$(libspatialite_ver).tar.gz sqlite.installed freexl.installed geos.installed libxml2.installed
+libspatialite.installed: libspatialite-$(libspatialite_ver).tar.gz sqlite.installed freexl.installed geos.installed
 	rm -rf $(INSTALL_DIR)/lib/libspatialite.* $(INSTALL_DIR)/include/spatialite $(INSTALL_DIR)/include/spatialite.h
 	$(call compile,--disable-mathsql --with-geosconfig=$(INSTALL_DIR)/bin/geos-config --disable-examples LIBXML2_LIBS="-lxml2" LIBXML2_CFLAGS="-I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lxml2" CFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/geos" CXXFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/geos" CPPFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/geos" LDFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/geos")
 freexl-$(freexl_ver).tar.gz:
@@ -318,8 +336,8 @@ python.installed: Python-$(python_ver).tar.xz
 	$(call compile,--enable-shared)
 
 numpy-$(numpy_version).tar.gz:
-	wget http://sourceforge.net/projects/numpy/files/NumPy/$(numpy_version)/numpy-$(numpy_version).tar.gz
-numpy.installed:
+	wget http://sourceforge.net/projects/numpy/files/NumPy/$(numpy_version)/$@
+numpy.installed: numpy-$(numpy_version).tar.gz
 	tar xaf $<
 	cd numpy-$(numpy_version) && python setup.py build install --prefix $(INSTALL_DIR) && cd .. && touch $@
 
