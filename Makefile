@@ -27,13 +27,8 @@ compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export
 # mkdir -p build && cd build &&
 cmake = cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 . && make && make install && cd ../ && touch $@
 #
-include utils.makefile
-include makefile.d/*
 
 sqlite_ver = 3081101
-#gdal_ver = 1.11.4
-gdal_ver = 1.9.2
-#GDAL_OPT =  --with-fgdb=$(INSTALL_DIR) 
 expat_ver = 2.1.0
 proj_ver = 4.8.0
 #geos_ver = 3.5.0
@@ -66,6 +61,9 @@ ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
 
 laszip_ver = 2.2.0
+
+include utils.makefile
+include makefile.d/*.makefile
 
 all:
 
@@ -136,17 +134,6 @@ laszip-src-$(laszip_ver).tar.gz:
 laszip.installed: laszip-src-$(laszip_ver).tar.gz
 	$(call compile)
 
-gdal-$(gdal_ver).tar.gz:
-#	wget http://download.osgeo.org/gdal/$@
-	wget http://download.osgeo.org/gdal/$(gdal_ver)/$@
-gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed  hdf4.shared.installed epsilon.installed postgresql.installed
-	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/lib/libgdal* 
-	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-fPIC" && export CFLAGS="-fPIC" && export CXXFLAGS="-fPIC" && export CPPFLAGS="-fPIC" && ./configure --prefix=$(INSTALL_DIR) --with-pg=$(INSTALL_DIR)/bin/pg_config --with-sqlite3=$(INSTALL_DIR)/lib --with-static-proj4=$(INSTALL_DIR)/lib --with-geos=$(INSTALL_DIR)/bin/geos-config --with-spatialite=$(INSTALL_DIR) --without-epsilon --with-python --with-hdf4=$(INSTALL_DIR) --with-jasper=$(INSTALL_DIR)/lib --with-expat=$(INSTALL_DIR) --with-openjpeg=$(INSTALL_DIR) --with-liblzma --with-curl=$(INSTALL_DIR)/bin --with-freexl=$(INSTALL_DIR) --with-libkml=$(INSTALL_DIR) --with-xml2=/usr/bin/xml2-config  --without-pcraster --without-pcidsk --with-jpeg=internal --with-gif=internal --with-libz=internal --with-png=internal --without-ecw --without-netcdf --without-hdf4 --without-hdf5 --without-grass --without-libgrass --with-libtiff=internal --with-geotiff=internal && $(MAKE) &&  $(MAKE) install && cd .. && touch $@
-
-
-#$(call compile,$(GDAL_OPT))
-# CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
-# libgeotiff.installed
 OpenSceneGraph-2.8.5.zip:
 	wget http://www.openscenegraph.org/downloads/stable_releases/OpenSceneGraph-2.8.5/source/OpenSceneGraph-2.8.5.zip
 OpenSceneGraph.installed: OpenSceneGraph-2.8.5.zip
