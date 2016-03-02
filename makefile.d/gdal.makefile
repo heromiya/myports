@@ -1,10 +1,10 @@
-gdal_ver = 1.10.1
+gdal_ver = 1.11.0
 
 gdal-$(gdal_ver).tar.gz:
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/$@
 
-gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed  hdf4.shared.installed epsilon.installed postgresql.installed
-	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/lib/libgdal* 
+gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed hdf4.shared.installed epsilon.installed postgresql.installed
+	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/include/ogr_*.h $(INSTALL_DIR)/include/cpl_*.h $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/include/ogrsf_frmts.h $(INSTALL_DIR)/lib/libgdal* 
 	tar xaf $< && \
 	cd $(basename $(basename $<)) && \
 	export CC=gcc && export CXX=g++ && \
@@ -18,7 +18,6 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj.in
 	--with-spatialite=$(INSTALL_DIR) \
 	--with-python \
 	--with-hdf4=$(INSTALL_DIR) \
-	--with-jasper=$(INSTALL_DIR)/lib \
 	--with-expat=$(INSTALL_DIR) \
 	--with-openjpeg=$(INSTALL_DIR) \
 	--with-liblzma \
@@ -33,14 +32,17 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj.in
 	--with-png=internal \
 	--with-libtiff=internal \
 	--with-geotiff=internal \
-	--without-libgrass \
+	--without-jasper \
 	--without-pcraster \
 	--without-pcidsk \
+	--without-libgrass \
 	--without-epsilon \
 	--without-grass \
 	--without-ecw \
 	--without-netcdf \
 	--without-hdf4 \
+	--without-poppler \
+	--without-podofo \
 	&& $(MAKE) &&  $(MAKE) install && cd .. && touch $@
 
 #$(call compile,$(GDAL_OPT))

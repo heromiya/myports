@@ -30,7 +30,7 @@ cmake = cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 . && 
 
 sqlite_ver = 3081101
 expat_ver = 2.1.0
-proj_ver = 4.8.0
+#proj_ver = 4.8.0
 #geos_ver = 3.5.0
 geos_ver = 3.4.2
 grass_ver = 6.4.5
@@ -60,7 +60,6 @@ jpeg_ver = 9a
 ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
 
-laszip_ver = 2.2.0
 
 include utils.makefile
 include makefile.d/*.makefile
@@ -74,10 +73,6 @@ zoo.installed:
 	cd zoo-src/thirds/cgic206 && make
 	cd zoo-src/zoo-project/zoo-kernel && autoconf && ./configure --prefix=$(INSTALL_DIR) --with-proj=$(INSTALL_DIR) --with-js --with-python && make && make install
 	cd zoo-src/zoo-project/zoo-services/utils/registry && make && cp cgi-env/* /usr/lib/cgi-bin
-libLAS-1.8.0.tar.bz2:
-	wget http://download.osgeo.org/liblas/$@
-liblas.installed: libLAS-1.8.0.tar.bz2
-	tar xaf $< && cd libLAS-1.8.0 && mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) .. && make && make install
 
 lidar2dems:
 	git clone https://github.com/Applied-GeoSolutions/lidar2dems.git
@@ -128,11 +123,6 @@ boost_1_60_0.tar.gz:
 	wget --no-check-certificate http://sourceforge.net/projects/boost/files/boost/1.60.0/$@
 boost.installed: boost_1_60_0.tar.gz
 	tar xaf $< && cd  boost_1_60_0 && ./bootstrap.sh && ./b2 && cd .. && touch $@
-
-laszip-src-$(laszip_ver).tar.gz:
-	wget --no-check-certificate https://github.com/LASzip/LASzip/releases/download/v$(laszip_ver)/$@
-laszip.installed: laszip-src-$(laszip_ver).tar.gz
-	$(call compile)
 
 OpenSceneGraph-2.8.5.zip:
 	wget http://www.openscenegraph.org/downloads/stable_releases/OpenSceneGraph-2.8.5/source/OpenSceneGraph-2.8.5.zip
@@ -221,10 +211,10 @@ libxslt-$(libxslt_ver).tar.gz:
 	wget http://xmlsoft.org/sources/libxslt-$(libxslt_ver).tar.gz
 libxslt.installed: libxslt-$(libxslt_ver).tar.gz
 	$(call compile)
-proj-$(proj_ver).tar.gz:
-	wget http://download.osgeo.org/proj/proj-$(proj_ver).tar.gz
-proj.installed: proj-$(proj_ver).tar.gz
-	$(call compile,--enable-shared)
+#proj-$(proj_ver).tar.gz:
+#	wget http://download.osgeo.org/proj/proj-$(proj_ver).tar.gz
+#proj.installed: proj-$(proj_ver).tar.gz
+#	$(call compile,--enable-shared)
 geos-$(geos_ver).tar.bz2:
 	wget http://download.osgeo.org/geos/geos-$(geos_ver).tar.bz2
 geos.installed: geos-$(geos_ver).tar.bz2 proj.installed
