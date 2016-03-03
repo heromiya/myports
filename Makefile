@@ -19,12 +19,11 @@ endif
 #LIBTOOL = && ln -sf `which libtool` .
 #endif
 
-CFLAGS = -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/python2.7 -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib
+CFLAGS = -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
-#CXXFLAGS= -O3 -fPIC  $(m64_FLAG)
-#  -O3 -fPIC  -mtune=native
-compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
-# mkdir -p build && cd build &&
+
+compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && cd .. && touch $@
+
 cmake = cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 . && make && make install && cd ../ && touch $@
 #
 
@@ -49,7 +48,6 @@ octave_ver = 3.8.2
 graphicmagick_ver = 1.3.21
 ossim_ver = 1.8.16
 
-libxml2_ver = 2.9.1
 libxslt_ver = 1.1.28
 libspatialite_ver = 4.3.0
 spatialite-tools_ver = 4.3.0
@@ -66,21 +64,7 @@ include makefile.d/*.makefile
 
 all:
 
-zoo-src:
-	svn checkout http://svn.zoo-project.org/svn/trunk zoo-src
 
-zoo.installed:
-	cd zoo-src/thirds/cgic206 && make
-	cd zoo-src/zoo-project/zoo-kernel && autoconf && ./configure --prefix=$(INSTALL_DIR) --with-proj=$(INSTALL_DIR) --with-js --with-python && make && make install
-	cd zoo-src/zoo-project/zoo-services/utils/registry && make && cp cgi-env/* /usr/lib/cgi-bin
-
-lidar2dems:
-	git clone https://github.com/Applied-GeoSolutions/lidar2dems.git
-lidar2dems.installed: lidar2dems gippy.installed pdal.installed pcl.installed points2grid.installed laszip.installed cimg.installed
-	cd lidar2dems && python setup.py install && touch $@
-# lib/python2.7/site-packages/gippy/__init__.py needs a correction: 
-# gdalinit() > gip_gdalinit() 
-# del locals()['gdalinit'] > del locals()['gip_gdalinit']
 
 CImg_1.6.9.zip:
 	wget http://cimg.eu/files/$@
@@ -91,12 +75,6 @@ cimg.installed: CImg_1.6.9.zip
 gippy.installed: pip.installed
 	pip install gippy && touch $@
 
-pdal:
-	git clone https://github.com/PDAL/PDAL.git pdal && cd pdal && git checkout tags/1.0.1
-#gdal.installed
-pdal.installed: pdal cmake.installed numpy.installed
-	cd pdal && mkdir -p build && cd build && cmake -G "Unix Makefiles" ../ -DBUILD_PLUGIN_PCL=ON -DBUILD_PLUGIN_P2G=ON -DBUILD_PLUGIN_PYTHON=ON -DPDAL_HAVE_GEOS=YES -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DBOOST_ROOT=$(INSTALL_DIR)/myports/boost_1_60_0  -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DBoost_LIBRARY_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/stage/lib && make && make install && cd ../../ && touch $@
-#-DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/boost
 pcl:
 	git clone https://github.com/PointCloudLibrary/pcl.git
 pcl.installed: pcl flann.installed eigen.installed boost.installed
@@ -203,10 +181,6 @@ icewm-$(icewm_ver).tar.gz:
 	wget http://downloads.sourceforge.net/project/icewm/icewm-1.3/$(icewm_ver)/icewm-$(icewm_ver).tar.gz
 icewm.installed: icewm-$(icewm_ver).tar.gz
 	$(call compile)
-libxml2-$(libxml2_ver).tar.gz:
-	wget http://xmlsoft.org/sources/libxml2-$(libxml2_ver).tar.gz
-libxml2.installed: libxml2-$(libxml2_ver).tar.gz python.installed
-	$(call compile,CFLAGS="$(CFLAGS) -shared")
 libxslt-$(libxslt_ver).tar.gz:
 	wget http://xmlsoft.org/sources/libxslt-$(libxslt_ver).tar.gz
 libxslt.installed: libxslt-$(libxslt_ver).tar.gz
@@ -234,11 +208,6 @@ libkml.installed: libkml-1.2.0.tar.gz curl.installed
 	&& export LDFLAGS="$(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" \
 	&& ./configure --prefix=$(INSTALL_DIR) $1 && sed -i 's/#include <sys\/stat.h>/#include <sys\/stat.h>\n#include <unistd.h>\n#include <sys\/unistd.h>/g' src/kml/base/file_posix.cc && make uninstall; make && make install && cd .. && touch $@
 
-libgeotiff-1.4.1.tar.gz:
-	wget http://download.osgeo.org/geotiff/libgeotiff/libgeotiff-1.4.1.tar.gz
-libgeotiff.installed: libgeotiff-1.4.1.tar.gz jpeg.installed zlib.installed proj.installed
-	$(call compile, --with-proj=$(INSTALL_DIR)/lib --with-zlib --with-jpeg=$(INSTALL_DIR)/lib)
-#LIBS="-L/home/heromiya/apps/lib -lproj -L/home/heromiya/apps/lib -ljpeg -lz -lm -L/home/heromiya/apps/lib -ltiff"
 sqlite-autoconf-$(sqlite_ver).tar.gz:
 	wget http://www.sqlite.org/2015/$@
 sqlite.installed: sqlite-autoconf-$(sqlite_ver).tar.gz
