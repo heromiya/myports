@@ -39,7 +39,6 @@ fftw_ver = 3.3.4
 icewm_ver = 1.3.3
 qgis_ver = 2.6.1
 pyqt_version = 4.11.3
-numpy_version = 1.10.2
 sip_version = 4.16.4
 gsl_version = 1.16
 qiv_version = 2.3.1
@@ -66,11 +65,6 @@ all:
 
 
 
-CImg_1.6.9.zip:
-	wget http://cimg.eu/files/$@
-
-cimg.installed: CImg_1.6.9.zip
-	unzip -o $< && cd CImg-1.6.9 && cp CImg.h $(INSTALL_DIR)/include && touch $@
 
 gippy.installed: pip.installed
 	pip install gippy && touch $@
@@ -90,12 +84,6 @@ eigen.3.2.8.tar.bz2:
 	wget --no-check-certificate http://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2 -O $@
 eigen.installed: eigen.3.2.8.tar.bz2
 	tar xaf $< && cd eigen-* && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd ../.. && touch $@
-
-points2grid/CMakeLists.txt: boost.installed
-	git clone https://github.com/CRREL/points2grid.git && touch points2grid
-
-points2grid.installed: points2grid
-	cd points2grid && mkdir -p build && cd build && export CMAKE_PREFIX_PATH=$(INSTALL_DIR) && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ && make && make install && cd ../.. && touch $@
 
 boost_1_60_0.tar.gz:
 	wget --no-check-certificate http://sourceforge.net/projects/boost/files/boost/1.60.0/$@
@@ -286,12 +274,6 @@ Python-$(python_ver).tar.xz:
 	wget --no-check-certificate http://www.python.org/ftp/python/$(python_ver)/Python-$(python_ver).tar.xz
 python.installed: Python-$(python_ver).tar.xz
 	$(call compile,--enable-shared)
-
-numpy-$(numpy_version).tar.gz:
-	wget http://sourceforge.net/projects/numpy/files/NumPy/$(numpy_version)/$@
-numpy.installed: numpy-$(numpy_version).tar.gz
-	tar xaf $<
-	cd numpy-$(numpy_version) && python setup.py build install --prefix $(INSTALL_DIR) && cd .. && touch $@
 
 grass-$(grass_ver).tar.gz:
 	wget http://grass.osgeo.org/grass64/source/grass-$(grass_ver).tar.gz

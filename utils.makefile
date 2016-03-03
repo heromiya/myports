@@ -49,11 +49,6 @@ make-$(make_ver).tar.bz2:
 make.installed: make-$(make_ver).tar.bz2
 	$(call compile)
 
-readline-6.3.tar.gz:
-	wget ftp://ftp.cwru.edu/pub/bash/readline-6.3.tar.gz
-readline.installed: readline-6.3.tar.gz
-	$(call compile,--disable-shared)
-
 gcc-$(gcc_ver).tar.bz2:
 	wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$(gcc_ver)/gcc-$(gcc_ver).tar.bz2
 gcc.installed: gcc-$(gcc_ver).tar.bz2 
