@@ -4,4 +4,5 @@ R-3.2.3.tar.gz:
 R.installed: R-3.2.3.tar.gz
 	$(call compile,\
 	--with-blas \
-	--with-lapack)
+	--with-lapack \
+	--without-x)
