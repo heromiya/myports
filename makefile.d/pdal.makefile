@@ -1,12 +1,14 @@
 #pdal:
 #	git clone https://github.com/PDAL/PDAL.git pdal && cd pdal && git checkout tags/1.0.1
-
-PDAL-1.1.0-src.tar.gz:
+pdal_ver = 1.0.1
+PDAL-$(pdal_ver)-src.tar.gz:
 	wget http://download.osgeo.org/pdal/$@
-pdal.installed: PDAL-1.1.0-src.tar.gz cmake.installed numpy.installed boost.installed pcl.installed laszip.installed gdal.installed libgeotiff.installed proj4.installed points2grid.installed
+pdal.installed: PDAL-$(pdal_ver)-src.tar.gz cmake.installed numpy.installed boost.installed pcl.installed laszip.installed gdal.installed libgeotiff.installed proj4.installed points2grid.installed
 	tar xaf $< && \
-	mkdir -p PDAL-1.1.0-src/build && \
-	cd PDAL-1.1.0-src/build && \
+	sed -i 's/#include <pdal\/Options.hpp>/#include <pdal\/Options.hpp>\n#include <sys\/types.h>\n#include <sys\/stat.h>\n#include <fcntl.h>/g' \
+	PDAL-$(pdal_ver)-src/include/pdal/PDALUtils.hpp && \
+	mkdir -p PDAL-$(pdal_ver)-src/build && \
+	cd PDAL-$(pdal_ver)-src/build && \
 	cmake -G "Unix Makefiles" \
 	-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
 	-DGDAL_CONFIG=$(INSTALL_DIR)/bin/gdal-config \
