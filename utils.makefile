@@ -29,9 +29,7 @@ binutils_ver = 2.25.1
 openthreads_ver = 
 
 gcc_ver = 4.9.3
-gmp_ver = 4.3.2
 mpfr_ver = 3.1.3
-isl_ver = 0.12.2
 cloog_ver = 0.18.0
 ppl_ver = 0.10.2
 
@@ -64,10 +62,6 @@ cloog-$(cloog_ver).tar.gz:
 cloog.installed: cloog-$(cloog_ver).tar.gz
 	$(subst tar xaf $< && cd,tar xaf $< && sed -i 's/GIT_HEAD_ID="UNKNOWN"/GIT_HEAD_ID="isl-0.11.1"/' cloog-0.18.0/isl/configure && cd,$(call compile))
 
-isl-$(isl_ver).tar.bz2:
-	wget http://isl.gforge.inria.fr/$@
-isl.installed: isl-$(isl_ver).tar.bz2
-	$(call compile)
 
 binutils-$(binutils_ver).tar.bz2:
 	wget http://ftp.gnu.org/gnu/binutils/binutils-$(binutils_ver).tar.bz2 
@@ -179,10 +173,6 @@ qiv.installed: qiv-2.3.1.tgz gtk+.installed
 	tar xaf $< && cd qiv-2.3.1 && make && make install && cd .. && touch $@
 
 
-gmp-$(gmp_ver).tar.xz:
-	wget --no-check-certificate https://gmplib.org/download/gmp/gmp-$(gmp_ver).tar.xz
-gmp.installed: gmp-$(gmp_ver).tar.xz
-	$(call compile,--disable-assembly --enable-cxx ABI=32)
 #	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) --enable-cxx CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
 
 mpfr-$(mpfr_ver).tar.bz2:

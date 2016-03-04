@@ -66,9 +66,6 @@ all:
 
 
 
-gippy.installed: pip.installed
-	pip install gippy && touch $@
-
 pcl:
 	git clone https://github.com/PointCloudLibrary/pcl.git
 pcl.installed: pcl flann.installed eigen.installed boost.installed
