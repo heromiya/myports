@@ -6,4 +6,3 @@ zlib.installed: zlib-$(zlib_ver).tar.gz
 	cd $(basename $(basename $<)) && \
 	./configure --prefix=$(INSTALL_DIR) && \
 	make && make install && cd .. && touch $@
-

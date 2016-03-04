@@ -21,7 +21,7 @@ endif
 CFLAGS = -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include
 LDFLAGS= -L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib -L/usr/local/lib
 
-compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && ./configure --prefix=$(INSTALL_DIR) $1 CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && cd .. && touch $@
 
 cmake = cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 . && make && make install && cd ../ && touch $@
 #
