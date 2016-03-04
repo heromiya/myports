@@ -207,11 +207,6 @@ spatialite-tools-$(spatialite-tools_ver).tar.gz:
 	wget http://www.gaia-gis.it/gaia-sins/spatialite-tools-sources/spatialite-tools-$(spatialite-tools_ver).tar.gz
 spatialite-tools.installed: spatialite-tools-$(spatialite-tools_ver).tar.gz libspatialite.installed freexl.installed readosm.installed
 	$(call compile,CFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" CXXFLAGS="-O3 -fPIC -I$(INSTALL_DIR)/include -L$(INSTALL_DIR)/lib -lspatialite" PKG_CONFIG_PATH=$(shell pwd)/libspatialite-$(libspatialite_ver):$(shell pwd)/freexl-$(freexl_ver):$(shell pwd)/readosm-1.0.0b)
-postgresql_ver = 9.1.20
-postgresql-$(postgresql_ver).tar.bz2:
-	wget http://ftp.postgresql.org/pub/source/v$(postgresql_ver)/postgresql-$(postgresql_ver).tar.bz2
-postgresql.installed: postgresql-$(postgresql_ver).tar.bz2 texinfo.installed readline.installed
-	$(call compile)
 postgis_ver = 2.1.8
 postgis-$(postgis_ver).tar.gz:
 	wget http://download.osgeo.org/postgis/source/postgis-$(postgis_ver).tar.gz
@@ -242,10 +237,6 @@ jasper-1.900.1.zip:
 jasper-1.900.1.uuid.tar.gz:
 	wget ftp://ftp.remotesensing.org/gdal/jasper-1.900.1.uuid.tar.gz
 jasper.installed: jasper-1.900.1.uuid.tar.gz
-	$(call compile)
-epsilon-0.9.2.tar.gz:
-	wget http://sourceforge.net/projects/epsilon-project/files/epsilon/0.9.2/epsilon-0.9.2.tar.gz
-epsilon.installed: epsilon-0.9.2.tar.gz popt.installed
 	$(call compile)
 popt-1.14.tar.gz:
 	wget http://rpm5.org/files/popt/popt-1.14.tar.gz
