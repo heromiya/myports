@@ -7,7 +7,7 @@ m64_FLAG = -m32
 endif
 
 ifneq (`which make`,)
-MAKE = make
+MAKE = make -j4
 else
 MAKE = gmake
 endif
@@ -18,10 +18,10 @@ endif
 #LIBTOOL = && ln -sf `which libtool` .
 #endif
 
-CFLAGS = -fPIC -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include -L$(INSTALL_DIR)/lib -L/usr/local/lib
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib
+CFLAGS = -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include
+LDFLAGS= -L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib -L/usr/local/lib
 
-compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 CFLAGS=$(CFLAGS) CXXFLAGS=$(CFLAGS) CPPFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && cd .. && touch $@
 
 cmake = cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 . && make && make install && cd ../ && touch $@
 #
@@ -113,10 +113,6 @@ dropbear-2014.66.tar.bz2:
 	wget http://matt.ucc.asn.au/dropbear/releases/dropbear-2014.66.tar.bz2
 dropbear.installed: dropbear-2014.66.tar.bz2
 	$(call compile)
-openssl-0.9.8zc.tar.gz:
-	wget http://www.openssl.org/source/openssl-0.9.8zc.tar.gz
-openssl.installed: openssl-0.9.8zc.tar.gz
-	tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && ./Configure linux-x86_64 shared zlib --prefix=$(INSTALL_DIR) && make && make install && cd .. && touch $@
 openssh-$(openssh_ver).tar.gz:
 	wget http://www.ftp.ne.jp/OpenBSD/OpenSSH/portable/openssh-$(openssh_ver).tar.gz
 openssh.installed: openssh-$(openssh_ver).tar.gz openssl.installed
