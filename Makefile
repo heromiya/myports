@@ -1,5 +1,4 @@
 INSTALL_DIR = $(HOME)/apps
-
 UNAME_A = $(shell uname -a)
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
@@ -31,10 +30,8 @@ sqlite_ver = 3081101
 expat_ver = 2.1.0
 #proj_ver = 4.8.0
 #geos_ver = 3.5.0
-geos_ver = 3.4.2
 grass_ver = 6.4.5
 mapserver_ver = 6.4.1
-python_ver = 2.7.9
 fftw_ver = 3.3.4
 icewm_ver = 1.3.3
 qgis_ver = 2.6.1
@@ -174,10 +171,6 @@ libxslt.installed: libxslt-$(libxslt_ver).tar.gz
 #	wget http://download.osgeo.org/proj/proj-$(proj_ver).tar.gz
 #proj.installed: proj-$(proj_ver).tar.gz
 #	$(call compile,--enable-shared)
-geos-$(geos_ver).tar.bz2:
-	wget http://download.osgeo.org/geos/geos-$(geos_ver).tar.bz2
-geos.installed: geos-$(geos_ver).tar.bz2 proj.installed
-	$(call compile,)
 fftw-$(fftw_ver).tar.gz:
 	wget http://www.fftw.org/fftw-$(fftw_ver).tar.gz
 fftw.installed: fftw-$(fftw_ver).tar.gz
@@ -244,10 +237,6 @@ hdf4.static.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib
 hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed bison.installed flex.installed
 	$(call compile, --enable-shared --disable-fortran --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
 
-openjpeg-read-only:
-	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
-openjpeg.installed: openjpeg-read-only
-	cd openjpeg-read-only && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ && make && make install && cd .. && touch $@
 jasper-1.900.1.zip:
 	wget http://www.ece.uvic.ca/~frodo/jasper/software/jasper-1.900.1.zip
 jasper-1.900.1.uuid.tar.gz:
@@ -263,14 +252,6 @@ popt-1.14.tar.gz:
 popt.installed:popt-1.14.tar.gz
 	$(call compile,)
 
-expat-$(expat_ver).tar.gz:
-	wget http://sourceforge.net/projects/expat/files/expat/$(expat_ver)/expat-$(expat_ver).tar.gz
-expat.installed: expat-$(expat_ver).tar.gz
-	$(call compile,--enable-shared --host=`uname -m` CFLAGS="-fPIC -shared")
-Python-$(python_ver).tar.xz:
-	wget --no-check-certificate http://www.python.org/ftp/python/$(python_ver)/Python-$(python_ver).tar.xz
-python.installed: Python-$(python_ver).tar.xz
-	$(call compile,--enable-shared)
 
 grass-$(grass_ver).tar.gz:
 	wget http://grass.osgeo.org/grass64/source/grass-$(grass_ver).tar.gz

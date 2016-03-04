@@ -37,10 +37,6 @@ nettle_ver = 2.0
 
 make_ver = 4.1
 
-easy_install.installed:
-	wget http://peak.telecommunity.com/dist/ez_setup.py && python ez_setup.py && touch $@
-pip.installed: easy_install.installed
-	easy_install pip && touch $@
 
 make-$(make_ver).tar.bz2:
 	wget http://ftp.gnu.org/gnu/make/make-$(make_ver).tar.bz2
