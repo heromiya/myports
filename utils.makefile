@@ -1,6 +1,5 @@
 texinfo_ver = 5.2
 pcre_ver = 8.36
-zlib_ver = 1.2.8
 bash_ver = 4.3.30
 bison_ver = 3.0.2
 flex_ver = 2.5.39

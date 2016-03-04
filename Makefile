@@ -21,7 +21,7 @@ endif
 CFLAGS = -I$(INSTALL_DIR)/include -I/usr/include -I/usr/local/include
 LDFLAGS= -L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib -L/usr/local/lib
 
-compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 CFLAGS=$(CFLAGS) CXXFLAGS=$(CFLAGS) CPPFLAGS=$(CFLAGS) LDFLAGS=$(LDFLAGS) && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && cd .. && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && cd .. && touch $@
 
 cmake = cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 . && make && make install && cd ../ && touch $@
 #
@@ -212,10 +212,6 @@ jpegsrc.v$(jpeg_ver).tar.gz:
 	wget http://www.ijg.org/files/jpegsrc.v$(jpeg_ver).tar.gz
 jpeg.installed: jpegsrc.v$(jpeg_ver).tar.gz
 	tar xaf $< && cd jpeg-$(jpeg_ver) && ./configure --prefix=$(INSTALL_DIR) CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" && make && make install && cd .. && touch $@
-zlib-$(zlib_ver).tar.gz:
-	wget http://zlib.net/zlib-$(zlib_ver).tar.gz
-zlib.installed: zlib-$(zlib_ver).tar.gz
-	$(call compile)
 szip-2.1.tar.gz:
 	wget http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
 szip.installed: szip-2.1.tar.gz jpeg.installed
