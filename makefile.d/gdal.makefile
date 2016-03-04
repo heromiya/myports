@@ -3,7 +3,7 @@ gdal_ver = 1.11.1
 gdal-$(gdal_ver).tar.gz:
 	wget http://download.osgeo.org/gdal/$(gdal_ver)/$@
 
-gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed hdf4.shared.installed epsilon.installed postgresql.installed libgeotiff.installed tiff.installed libxml2.installed
+gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed libkml.installed pcre.installed hdf4.shared.installed epsilon.installed postgresql.installed libgeotiff.installed tiff.installed libxml2.installed xz.installed
 	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/include/ogr_*.h $(INSTALL_DIR)/include/cpl_*.h $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/include/ogrsf_frmts.h $(INSTALL_DIR)/lib/libgdal* 
 	tar xaf $< && \
 	cd $(basename $(basename $<)) && \
@@ -45,6 +45,7 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	CFLAGS=-I$(INSTALL_DIR)/include/libxml2 \
 	CXXFLAGS=-I$(INSTALL_DIR)/include/libxml2 \
 	CPPFLAGS=-I$(INSTALL_DIR)/include/libxml2 \
+	LIBS=-lxml2 \
 	&& $(MAKE) &&  $(MAKE) install && cd .. && touch $@
 
 #$(call compile,$(GDAL_OPT))

@@ -1,7 +1,6 @@
 texinfo_ver = 5.2
 pcre_ver = 8.36
 zlib_ver = 1.2.8
-xz_ver = 5.0.8
 bash_ver = 4.3.30
 bison_ver = 3.0.2
 flex_ver = 2.5.39
@@ -13,7 +12,6 @@ w3m_version = 0.5.3
 wget_ver = 1.16.1
 openssh_ver = 6.7p1
 rsync_ver = 3.1.1
-curl_ver = 7.41.0
 lynx_ver = 2.8.8
 subversion_ver = 1.8.11
 neon_ver = 0.30.1
@@ -202,10 +200,6 @@ pcre-$(pcre_ver).tar.bz2:
 	wget http://downloads.sourceforge.net/project/pcre/pcre/$(pcre_ver)/pcre-$(pcre_ver).tar.bz2
 pcre.installed: pcre-$(pcre_ver).tar.bz2
 	$(call compile)
-curl-$(curl_ver).tar.lzma:
-	wget http://www.execve.net/curl/$@
-curl.installed: curl-$(curl_ver).tar.lzma xz.installed
-	$(call compile)
 rsync-$(rsync_ver).tar.gz:
 	wget http://rsync.samba.org/ftp/rsync/src/rsync-$(rsync_ver).tar.gz
 rsync.installed: rsync-$(rsync_ver).tar.gz
@@ -213,8 +207,4 @@ rsync.installed: rsync-$(rsync_ver).tar.gz
 texinfo-$(texinfo_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/texinfo/texinfo-$(texinfo_ver).tar.xz
 texinfo.installed: texinfo-$(texinfo_ver).tar.xz
-	$(call compile)
-xz-$(xz_ver).tar.bz2:
-	wget http://tukaani.org/xz/$@
-xz.installed: xz-$(xz_ver).tar.bz2
 	$(call compile)
