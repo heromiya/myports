@@ -42,9 +42,9 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	--without-netcdf \
 	--without-poppler \
 	--without-podofo \
-	CFLAGS=-I$(INSTALL_DIR)/include \
-	CXXFLAGS=-I$(INSTALL_DIR)/include \
-	CPPFLAGS=-I$(INSTALL_DIR)/include \
+	CFLAGS=-I$(INSTALL_DIR)/include/libxml2 \
+	CXXFLAGS=-I$(INSTALL_DIR)/include/libxml2 \
+	CPPFLAGS=-I$(INSTALL_DIR)/include/libxml2 \
 	&& $(MAKE) &&  $(MAKE) install && cd .. && touch $@
 
 #$(call compile,$(GDAL_OPT))
