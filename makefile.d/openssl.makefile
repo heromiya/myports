@@ -1,6 +1,6 @@
 openssl_ver = 1.0.2g
 openssl-$(openssl_ver).tar.gz:
-	wget http://www.openssl.org/source/$@
+	wget -q  http://www.openssl.org/source/$@
 openssl.installed: openssl-$(openssl_ver).tar.gz zlib.installed
 	tar xaf $< && \
 	cd $(basename $(basename $<)) && \

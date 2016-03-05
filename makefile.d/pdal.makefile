@@ -2,7 +2,7 @@
 #	git clone https://github.com/PDAL/PDAL.git pdal && cd pdal && git checkout tags/1.0.1
 pdal_ver = 1.0.1
 PDAL-$(pdal_ver)-src.tar.gz:
-	wget http://download.osgeo.org/pdal/$@
+	wget -q  http://download.osgeo.org/pdal/$@
 pdal.installed: PDAL-$(pdal_ver)-src.tar.gz cmake.installed numpy.installed boost.installed pcl.installed laszip.installed gdal.installed libgeotiff.installed proj4.installed points2grid.installed
 	tar xaf $< && \
 	sed -i 's/#include <pdal\/Options.hpp>/#include <pdal\/Options.hpp>\n#include <sys\/types.h>\n#include <sys\/stat.h>\n#include <fcntl.h>/g' \

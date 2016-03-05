@@ -2,7 +2,7 @@ points2grid:
 	git clone https://github.com/CRREL/points2grid.git
 
 #1.3.0.tar.gz:
-#	wget https://github.com/CRREL/points2grid/archive/$@
+#	wget -q  https://github.com/CRREL/points2grid/archive/$@
 
 points2grid.installed: points2grid boost.installed
 	mkdir -p points2grid/build && \

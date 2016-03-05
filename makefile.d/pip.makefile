@@ -1,4 +1,7 @@
-easy_install.installed: python.installed
-	wget -nc http://peak.telecommunity.com/dist/ez_setup.py && python ez_setup.py && touch $@
-pip.installed: easy_install.installed
+setuptools-20.2.2.tar.gzd: python.installed
+	wget -q https://pypi.python.org/packages/source/s/setuptools/$@
+setuptools.installed: setuptools-20.2.2.tar.gz
+	tar xaf $< && cd setuptools-20.2.2 && ./setup.py install && touch ../$@
+
+pip.installed: setuptools.installed
 	easy_install pip && touch $@
