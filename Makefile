@@ -57,11 +57,6 @@ eigen.3.2.8.tar.bz2:
 eigen.installed: eigen.3.2.8.tar.bz2
 	tar xaf $< && cd eigen-* && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd ../.. && touch $@
 
-boost_1_60_0.tar.gz:
-	wget -q  --no-check-certificate http://sourceforge.net/projects/boost/files/boost/1.60.0/$@
-boost.installed: boost_1_60_0.tar.gz
-	tar xaf $< && cd  boost_1_60_0 && ./bootstrap.sh && ./b2 && cd .. && touch $@
-
 OpenSceneGraph-2.8.5.zip:
 	wget -q  http://www.openscenegraph.org/downloads/stable_releases/OpenSceneGraph-2.8.5/source/OpenSceneGraph-2.8.5.zip
 OpenSceneGraph.installed: OpenSceneGraph-2.8.5.zip
