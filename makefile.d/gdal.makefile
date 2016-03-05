@@ -49,7 +49,12 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	CPPFLAGS="-I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/libxml2" \
 	LDFLAGS=-L$(INSTALL_DIR)/lib \
 	LIBS="-lxml2 -lsqlite3 -lspatialite"\
-	&& $(MAKE) &&  $(MAKE) install && cd .. && touch $@
+	&& $(MAKE) &&  $(MAKE) install && touch ../$@
+	mkdir -p $(INSTALL_DIR)/include/gdal && \
+	cd $(INSTALL_DIR)/include/gdal && \
+	ls ../gdal*.h | xargs -n 1 ln -sf && \
+	ls ../ogr*.h | xargs -n 1 ln -sf && \
+	ls ../cpl*.h | xargs -n 1 ln -sf
 
 #$(call compile,$(GDAL_OPT))
 # CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"

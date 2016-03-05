@@ -20,13 +20,13 @@ pdal.installed: PDAL-$(pdal_ver)-src.tar.gz cmake.installed numpy.installed boos
 	-DBUILD_PLUGIN_P2G=ON \
 	-DBUILD_PLUGIN_PYTHON=ON \
 	-DPDAL_HAVE_GEOS=YES \
-	-DCMAKE_C_COMPILER=gcc-4.8 \
-	-DCMAKE_CXX_COMPILER=g++-4.8 \
+	-DCMAKE_C_COMPILER=gcc \
+	-DCMAKE_CXX_COMPILER=g++ \
 	-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
-	-DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 \
-	-DBOOST_ROOT=$(INSTALL_DIR)/myports/boost_1_60_0 \
-	-DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 \
-	-DBoost_LIBRARY_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/stage/lib \
+	-DBoost_DIR=$(INSTALL_DIR) \
+	-DBOOST_ROOT=$(INSTALL_DIR) \
+	-DBoost_INCLUDE_DIR=$(INSTALL_DIR)/include \
+	-DBoost_LIBRARY_DIR=$(INSTALL_DIR)/lib \
 	-DLASZIP_INCLUDE_DIR=$(INSTALL_DIR)/include .. && \
 	make && make install && cd ../../ && touch $@
 
