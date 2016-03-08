@@ -2,7 +2,7 @@
 #	git clone https://github.com/PDAL/PDAL.git pdal && cd pdal && git checkout tags/1.0.1
 pdal_ver = 1.0.1
 PDAL-$(pdal_ver)-src.tar.gz:
-	wget http://download.osgeo.org/pdal/$@
+	wget -q  http://download.osgeo.org/pdal/$@
 pdal.installed: PDAL-$(pdal_ver)-src.tar.gz cmake.installed numpy.installed boost.installed pcl.installed laszip.installed gdal.installed libgeotiff.installed proj4.installed points2grid.installed
 	tar xaf $< && \
 	sed -i 's/#include <pdal\/Options.hpp>/#include <pdal\/Options.hpp>\n#include <sys\/types.h>\n#include <sys\/stat.h>\n#include <fcntl.h>/g' \
@@ -20,13 +20,13 @@ pdal.installed: PDAL-$(pdal_ver)-src.tar.gz cmake.installed numpy.installed boos
 	-DBUILD_PLUGIN_P2G=ON \
 	-DBUILD_PLUGIN_PYTHON=ON \
 	-DPDAL_HAVE_GEOS=YES \
-	-DCMAKE_C_COMPILER=gcc-4.8 \
-	-DCMAKE_CXX_COMPILER=g++-4.8 \
+	-DCMAKE_C_COMPILER=gcc \
+	-DCMAKE_CXX_COMPILER=g++ \
 	-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
-	-DBoost_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 \
-	-DBOOST_ROOT=$(INSTALL_DIR)/myports/boost_1_60_0 \
-	-DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 \
-	-DBoost_LIBRARY_DIR=$(INSTALL_DIR)/myports/boost_1_60_0/stage/lib \
+	-DBoost_DIR=$(INSTALL_DIR) \
+	-DBOOST_ROOT=$(INSTALL_DIR) \
+	-DBoost_INCLUDE_DIR=$(INSTALL_DIR)/include \
+	-DBoost_LIBRARY_DIR=$(INSTALL_DIR)/lib \
 	-DLASZIP_INCLUDE_DIR=$(INSTALL_DIR)/include .. && \
 	make && make install && cd ../../ && touch $@
 

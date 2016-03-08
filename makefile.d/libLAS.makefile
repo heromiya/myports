@@ -1,5 +1,5 @@
 libLAS-1.8.0.tar.bz2:
-	wget http://download.osgeo.org/liblas/$@
+	wget -q  http://download.osgeo.org/liblas/$@
 #liblas.installed: libLAS-1.8.0.tar.bz2
 #	$(call compile)
 

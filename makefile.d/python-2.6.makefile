@@ -1,5 +1,5 @@
 Python-2.6.9.tar.xz:
-	wget --no-check-certificate https://www.python.org/ftp/python/2.6.9/$@
+	wget -q  --no-check-certificate https://www.python.org/ftp/python/2.6.9/$@
 
 python-2.6.installed: Python-2.6.9.tar.xz
 	tar xaf $< && \
