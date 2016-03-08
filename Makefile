@@ -17,7 +17,7 @@ LDFLAGS= -L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L/usr/lib -L/usr/lib64
 
 compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure -q -C --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && cd .. && touch $@
 
-cmake = cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 . && $(MAKE) && $(MAKE) install && cd ../ && touch $@
+cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 .. && $(MAKE) && $(MAKE) install && cd ../ && touch $@
 
 sqlite_ver = 3081101
 expat_ver = 2.1.0
