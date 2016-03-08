@@ -8,5 +8,5 @@ openssl.installed: openssl-$(openssl_ver).tar.gz zlib.installed
 	export CXXFLAGS="$(CFLAGS)" && \
 	export CPPFLAGS="$(CFLAGS)" && \
 	export LDFLAGS="$(LDFLAGS)" && \
-	if [ -e /usr/lib/zlib.so -o -e /usr/lib/zlib.a ]; then ./Configure linux-x86_64 shared zlib -L/usr/lib --prefix=$(INSTALL_DIR); else ./Configure linux-x86_64 shared zlib  -L$(INSTALL_DIR)/lib --prefix=$(INSTALL_DIR);fi  && \
+	./config --prefix=$(INSTALL_DIR) zlib shared && \
 	make && make install && cd .. && touch $@
