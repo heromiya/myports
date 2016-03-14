@@ -16,7 +16,7 @@ else
 MAKE = gmake
 endif
 
-CFLAGS = $(m64_FLAG) -I$(INSTALL_DIR)/include -I/usr/include
+CFLAGS = -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I/usr/include
 
 compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure -q -C --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
 
