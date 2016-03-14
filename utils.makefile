@@ -100,16 +100,9 @@ gzip.installed: gzip-$(gzip_ver).tar.xz
 #	mkdir -p glibc-build && cd glibc-build && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) CC=/usr/bin/cc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 glibc-$(glibc_ver).tar.xz:
-<<<<<<< HEAD
-	wget http://ftp.gnu.org/gnu/glibc/$@
-glibc.installed:  glibc-$(glibc_ver).tar.xz
-	tar xaf $< && cd $(basename $(basename $<)) && mkdir -p build && cd build && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="-m64 -O2" && export CFLAGS="-m64 -O2 -fPIC" && export CXXFLAGS="-m64 -O2 -fPIC" && export CPPFLAGS="-m64 -O2 -fPIC" && ../configure --prefix=$(INSTALL_DIR) --enable-shared && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
-
-=======
-	wget -q  http://ftp.gnu.org/gnu/glibc/$@
+	wget -q http://ftp.gnu.org/gnu/glibc/$@
 glibc.installed: glibc-$(glibc_ver).tar.xz
 	mkdir -p glibc-build && cd glibc-build && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) CC=/usr/bin/cc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
->>>>>>> guam
 
 screen-$(screen_ver).tar.gz:
 	wget -q  http://ftp.gnu.org/gnu/screen/$@

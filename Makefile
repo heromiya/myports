@@ -1,9 +1,13 @@
 INSTALL_DIR = $(HOME)/apps
+VPATH = .:$(HOME)/apps:/usr
+
 UNAME_A = $(shell uname -a)
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L/usr/lib64
 else
 m64_FLAG = -m32
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib
 endif
 
 ifneq (`which make`,)
@@ -12,8 +16,7 @@ else
 MAKE = gmake
 endif
 
-CFLAGS = -I$(INSTALL_DIR)/include -I/usr/include
-LDFLAGS= -L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L/usr/lib -L/usr/lib64
+CFLAGS = $(m64_FLAG) -I$(INSTALL_DIR)/include -I/usr/include
 
 compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure -q -C --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
 
@@ -30,7 +33,6 @@ sip_version = 4.16.4
 gsl_version = 1.16
 qiv_version = 2.3.1
 qwt_ver = 6.0.2
-octave_ver = 3.8.2
 graphicmagick_ver = 1.3.21
 ossim_ver = 1.8.16
 libxslt_ver = 1.1.28
@@ -52,21 +54,10 @@ pcl:
 pcl.installed: pcl flann.installed eigen.installed boost.installed
 	cd pcl && mkdir -p build && cd build && git fetch origin --tags && git checkout tags/pcl-1.7.2 && cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DBUILD_outofcore:BOOL=OFF -DWITH_QT:BOOL=ON -DWITH_VTK:BOOL=ON -DWITH_OPENNI:BOOL=OFF -DWITH_CUDA:BOOL=OFF -DWITH_LIBUSB:BOOL=OFF -DBUILD_people:BOOL=OFF -DBUILD_surface:BOOL=ON -DBUILD_tools:BOOL=ON -DBUILD_visualization:BOOL=ON -DBUILD_sample_consensus:BOOL=ON -DBUILD_tracking:BOOL=OFF -DBUILD_stereo:BOOL=OFF -DBUILD_keypoints:BOOL=OFF -DBUILD_pipeline:BOOL=ON -DCMAKE_CXX_FLAGS="-std=c++11" -DBUILD_io:BOOL=ON -DBUILD_octree:BOOL=ON -DBUILD_segmentation:BOOL=ON -DBUILD_search:BOOL=ON -DBUILD_geometry:BOOL=ON -DBUILD_filters:BOOL=ON -DBUILD_features:BOOL=ON -DBUILD_kdtree:BOOL=ON -DBUILD_common:BOOL=ON -DBUILD_ml:BOOL=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DBoost_INCLUDE_DIR=$(INSTALL_DIR)/myports/boost_1_60_0 && make && make install && cd ../.. && touch $@
 
-flann-1.8.4-src.zip:
-	wget http://www.cs.ubc.ca/research/flann/uploads/FLANN/$@
-
-flann.installed:flann-1.8.4-src.zip
-	unzip $< && cd flann-1.8.4-src && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ && make && make install && cd ../.. && touch $@
-
 eigen.3.2.8.tar.bz2:
 	wget --no-check-certificate http://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2 -O $@
 eigen.installed: eigen.3.2.8.tar.bz2
 	tar xaf $< && cd eigen-* && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) && make && make install && cd ../.. && touch $@
-
-R-$(R_ver).tar.gz:
-	wget http://cran.r-project.org/src/base/R-3/$@
-R.installed: R-$(R_ver).tar.gz
-	$(call compile,--without-x --with-blas=/usr/lib/libblas.so --with-lapack=/usr/lib/liblapack.so)
 
 pixman-$(pixman_ver).tar.gz:
 	wget http://cairographics.org/releases/$@
@@ -106,11 +97,6 @@ SuiteSparse-4.2.1.tar.gz:
 SuiteSparse.installed: SuiteSparse-4.2.1.tar.gz
 	tar xaf $< && cd SuiteSparse && \
 	sed -i 's#INSTALL_LIB = /usr/local/lib#INSTALL_LIB = $(INSTALL_DIR)/lib#g; s#INSTALL_INCLUDE = /usr/local/include#INSTALL_INCLUDE = $(INSTALL_DIR)/include#g; s#BLAS = -lopenblas#BLAS = -lblas#g;' SuiteSparse_config/SuiteSparse_config.mk && make && make install && cd $(INSTALL_DIR)/lib && top=`pwd` && mkdir -p tmp && cd tmp && for f in libsuitesparseconfig libamd libcamd libcolamd libbtf libklu libldl libccolamd libumfpack libcholmod libcxsparse librbio libspqr; do ar vx ../$$f.a; done && for f in libsuitesparseconfig libamd libcamd libcolamd libbtf libklu libldl libccolamd libumfpack libcholmod libcxsparse librbio libspqr; do gcc -shared -o ../$$f.so *.o -lrt -llapack -lblas; done && cd ../../myports && touch $@
-
-octave-$(octave_ver).tar.bz2:
-	wget ftp://ftp.gnu.org/gnu/octave/octave-$(octave_ver).tar.bz2
-octave.installed: octave-$(octave_ver).tar.bz2 graphicsmagick.installed SuiteSparse.installed readline.installed gnuplot.installed
-	$(call compile,--disable-gui --with-blas=/usr/lib/libblas.so --with-lapack=/usr/lib/liblapack.so --with-amd-includedir=$(INSTALL_DIR)/include --with-amd-libdir=$(INSTALL_DIR)/lib --with-camd-includedir=$(INSTALL_DIR)/include --with-camd-libdir=$(INSTALL_DIR)/lib --with-colamd-includedir=$(INSTALL_DIR)/include --with-colamd-libdir=$(INSTALL_DIR)/lib --with-ccolamd-includedir=$(INSTALL_DIR)/include --with-ccolamd-libdir=$(INSTALL_DIR)/lib --with-cxsparse-includedir=$(INSTALL_DIR)/include --with-cxsparse-libdir=$(INSTALL_DIR)/lib --with-umfpack-includedir=$(INSTALL_DIR)/include --with-umfpack-libdir=$(INSTALL_DIR)/lib --with-cholmod-includedir=$(INSTALL_DIR)/include --with-cholmod-libdir=$(INSTALL_DIR)/lib)
 
 dropbear-2014.66.tar.bz2:
 	wget -q  http://matt.ucc.asn.au/dropbear/releases/dropbear-2014.66.tar.bz2
@@ -287,11 +273,6 @@ jbigkit-2.1.tar.gz:
 
 jbigkit.installed: jbigkit-2.1.tar.gz
 	cd jbigkit-2.1 && make && cp libjbig/libjbig.a libjbig/libjbig85.a $(INSTALL_DIR)/lib/ && cp libjbig/*.h  $(INSTALL_DIR)/include/ && cd .. && touch $@
-
-hdf5-1.8.16.tar.bz2:
-	wget http://www.hdfgroup.org/ftp/HDF5/current/src/$@
-hdf5.installed: hdf5-1.8.16.tar.bz2
-	$(call compile)
 
 netcdf_ver = 4.3.3.1
 netcdf-$(netcdf_ver).tar.gz:

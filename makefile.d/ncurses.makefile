@@ -1,4 +1,5 @@
-ncurses-6.0.tar.gz:
+ncurses_ver = 6.0
+ncurses-$(ncurses_ver).tar.gz:
 	wget -q http://ftp.gnu.org/gnu/ncurses/$@
-ncurses.installed: ncurses-6.0.tar.gz
+ncurses.installed: ncurses-$(ncurses_ver).tar.gz
 	$(call compile)

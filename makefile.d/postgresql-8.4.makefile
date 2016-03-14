@@ -4,7 +4,7 @@
 
 postgresql-8.4.22.tar.bz2:
 	wget -q  http://ftp.postgresql.org/pub/source/v8.4.22/postgresql-8.4.22.tar.bz2
-postgresql-8.4.installed: postgresql-8.4.22.tar.bz2 texinfo.installed readline.installed
+postgresql-8.4.installed: postgresql-8.4.22.tar.bz2 texinfo.installed lib/libreadline.so
 	tar xaf $< && \
 	cd $(basename $(basename $<)) && \
 	export CC=gcc-4.8 && \
