@@ -4,7 +4,7 @@ VPATH = .:$(HOME)/apps:/usr
 UNAME_A = $(shell uname -a)
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L/usr/lib64
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L/usr/lib64 -L$(INSTALL_DIR)/lib -L/usr/lib
 else
 m64_FLAG = -m32
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib
@@ -33,7 +33,6 @@ sip_version = 4.16.4
 gsl_version = 1.16
 qiv_version = 2.3.1
 qwt_ver = 6.0.2
-graphicmagick_ver = 1.3.21
 ossim_ver = 1.8.16
 libxslt_ver = 1.1.28
 spatialite-tools_ver = 4.3.0
@@ -87,16 +86,6 @@ ossim.installed: ossim-$(ossim_ver).tar.gz
 	$(call compile,--with-libtiff=$(INSTALL_DIR) --with-geotiff=$(INSTALL_DIR) --with-openthreads=$(INSTALL_DIR))
 #	tar xaf $< && cd ossim-1.8.16/ossim && ./configure --prefix=$(INSTALL_DIR) --enable-sharedOssimLibraries --enable-staticOssimLibraries --enable-singleSharedOssimLibrary --enable-singleStaticOssimLibrary --enable-staticOssimApps --with-libtiff=$(INSTALL_DIR) --with-geotiff=$(INSTALL_DIR) --with-openthreads=$(INSTALL_DIR) CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
-GraphicsMagick-$(graphicmagick_ver).tar.bz2:
-	wget -q  http://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/$(graphicmagick_ver)/GraphicsMagick-$(graphicmagick_ver).tar.bz2
-graphicsmagick.installed: GraphicsMagick-$(graphicmagick_ver).tar.bz2
-	$(call compile,--enable-shared --with-quantum-depth=16 --disable-static --with-magick-plus-plus=yes)
-
-SuiteSparse-4.2.1.tar.gz:
-	wget http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.2.1.tar.gz
-SuiteSparse.installed: SuiteSparse-4.2.1.tar.gz
-	tar xaf $< && cd SuiteSparse && \
-	sed -i 's#INSTALL_LIB = /usr/local/lib#INSTALL_LIB = $(INSTALL_DIR)/lib#g; s#INSTALL_INCLUDE = /usr/local/include#INSTALL_INCLUDE = $(INSTALL_DIR)/include#g; s#BLAS = -lopenblas#BLAS = -lblas#g;' SuiteSparse_config/SuiteSparse_config.mk && make && make install && cd $(INSTALL_DIR)/lib && top=`pwd` && mkdir -p tmp && cd tmp && for f in libsuitesparseconfig libamd libcamd libcolamd libbtf libklu libldl libccolamd libumfpack libcholmod libcxsparse librbio libspqr; do ar vx ../$$f.a; done && for f in libsuitesparseconfig libamd libcamd libcolamd libbtf libklu libldl libccolamd libumfpack libcholmod libcxsparse librbio libspqr; do gcc -shared -o ../$$f.so *.o -lrt -llapack -lblas; done && cd ../../myports && touch $@
 
 dropbear-2014.66.tar.bz2:
 	wget -q  http://matt.ucc.asn.au/dropbear/releases/dropbear-2014.66.tar.bz2
