@@ -185,10 +185,6 @@ postgis-$(postgis_ver).tar.gz:
 	wget -q  http://download.osgeo.org/postgis/source/postgis-$(postgis_ver).tar.gz
 postgis.installed: postgis-$(postgis_ver).tar.gz postgresql.installed proj.installed geos.installed
 	$(call compile,--with-projdir=$(INSTALL_DIR))
-jpegsrc.v$(jpeg_ver).tar.gz:
-	wget -q  http://www.ijg.org/files/jpegsrc.v$(jpeg_ver).tar.gz
-jpeg.installed: jpegsrc.v$(jpeg_ver).tar.gz
-	tar xaf $< && cd jpeg-$(jpeg_ver) && ./configure --prefix=$(INSTALL_DIR) CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" && make && make install && cd .. && touch $@
 szip-2.1.tar.gz:
 	wget -q  http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
 szip.installed: szip-2.1.tar.gz jpeg.installed
