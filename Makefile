@@ -22,11 +22,10 @@ endif
 
 CFLAGS = -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I/usr/include
 
-compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure -q -C --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install
+compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
 
-cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 .. && $(MAKE) && $(MAKE) install; touch ../../$@
+cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_FLAGS=-I$(INSTALL_DIR)/include -DCMAKE_CXX_FLAGS=-I$(INSTALL_DIR)/include $1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
 
-sqlite_ver = 3081101
 expat_ver = 2.1.0
 grass_ver = 6.4.5
 fftw_ver = 3.3.4
@@ -156,10 +155,6 @@ fftw-$(fftw_ver).tar.gz:
 fftw.installed: fftw-$(fftw_ver).tar.gz
 	$(call compile)
 
-sqlite-autoconf-$(sqlite_ver).tar.gz:
-	wget -q  http://www.sqlite.org/2015/$@
-sqlite.installed: sqlite-autoconf-$(sqlite_ver).tar.gz
-	$(call compile,)
 freexl-$(freexl_ver).tar.gz:
 	wget -q  http://www.gaia-gis.it/gaia-sins/freexl-sources/$@
 freexl.installed: freexl-$(freexl_ver).tar.gz
