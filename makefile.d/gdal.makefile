@@ -28,7 +28,7 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	--with-geotiff=$(INSTALL_DIR) \
 	--with-spatialite=$(INSTALL_DIR) \
 	--with-sqlite3=$(INSTALL_DIR) \
-	--without-hdf4 \
+	--with-hdf4 \
 	--with-hdf5 \
 	--without-jasper \
 	--without-pcraster \
@@ -50,8 +50,3 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	ls ../gdal*.h | xargs -n 1 ln -sf && \
 	ls ../ogr*.h | xargs -n 1 ln -sf && \
 	ls ../cpl*.h | xargs -n 1 ln -sf
-
-#$(call compile,$(GDAL_OPT))
-# CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
-
-# 
