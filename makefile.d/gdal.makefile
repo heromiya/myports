@@ -3,7 +3,7 @@ gdal_ver = 1.11.1
 gdal-$(gdal_ver).tar.gz:
 	wget -q  http://download.osgeo.org/gdal/$(gdal_ver)/$@
 # libkml.installed
-gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed pcre.installed epsilon.installed postgresql.installed libgeotiff.installed tiff.installed libxml2.installed xz.installed hdf4.shared.installed hdf5.installed
+gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed pcre.installed epsilon.installed postgresql.installed libgeotiff.installed tiff.installed lib/libxml2.so xz.installed hdf4.shared.installed lib/libhdf5.so
 	rm -rf $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/include/ogr_*.h $(INSTALL_DIR)/include/cpl_*.h $(INSTALL_DIR)/include/gdal*.h $(INSTALL_DIR)/include/ogrsf_frmts.h $(INSTALL_DIR)/lib/libgdal* 
 	$(call compile,\
 	--with-pg=$(INSTALL_DIR)/bin/pg_config \
@@ -19,7 +19,7 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	--with-curl=$(INSTALL_DIR)/bin \
 	--with-freexl=$(INSTALL_DIR) \
 	--with-libkml=$(INSTALL_DIR) \
-	--with-xml2=$(INSTALL_DIR)/bin/xml2-config \
+	--with-xml2 \
 	--with-jpeg=internal \
 	--with-gif=internal \
 	--with-libz=internal \
@@ -43,10 +43,14 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	CFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
 	CXXFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
 	CPPFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
-	LIBS="-lxml2 -lsqlite3 -lspatialite" \
+	LDFLAGS="$(LDFLAGS)  $(INSTALL_DIR)/lib/libsqlite3.so" \
+	LIBS="-lxml2 $(INSTALL_DIR)/lib/libsqlite3.a $(INSTALL_DIR)/lib/libgeos.a $(INSTALL_DIR)/lib64/libstdc++.a $(INSTALL_DIR)/lib/libspatialite.a" \
 	) && \
 	mkdir -p $(INSTALL_DIR)/include/gdal && \
 	cd $(INSTALL_DIR)/include/gdal && \
 	ls ../gdal*.h | xargs -n 1 ln -sf && \
 	ls ../ogr*.h | xargs -n 1 ln -sf && \
 	ls ../cpl*.h | xargs -n 1 ln -sf
+
+
+#-L$(INSTALL_DIR)/lib -lsqlite3 -L$(INSTALL_DIR)/lib  -l $(INSTALL_DIR)/lib/libspatialite.so

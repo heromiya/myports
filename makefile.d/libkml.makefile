@@ -1,7 +1,7 @@
 
 libkml:
 	git clone https://github.com/libkml/libkml.git
-libkml.installed: libkml curl.installed zlib.installed
+libkml.installed: libkml curl.installed libz.so
 	cd libkml && \
 	$(call cmake,\
 	-DCMAKE_C_FLAGS="-I$(INSTALL_DIR)/include" \

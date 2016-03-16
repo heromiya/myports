@@ -16,10 +16,9 @@ neon_ver = 0.30.1
 serf_ver = 1.3.8
 apr_ver = 1.5.1
 apr-util_ver = 1.5.4
-glibc_ver = 2.21
+
 gzip_ver = 1.3.13
 iojs_ver = 2.4.0
-parallel_ver = 20151122
 openthreads_ver = 
 gawk_ver = 4.1.3
 
@@ -60,11 +59,6 @@ ppl.installed: ppl-$(ppl_ver).tar.bz2
 	$(call compile)
 
 
-parallel-$(parallel_ver).tar.bz2:
-	wget -q  http://ftp.gnu.org/gnu/parallel/parallel-$(parallel_ver).tar.bz2
-
-parallel.installed: parallel-$(parallel_ver).tar.bz2
-	$(call compile)
 
 iojs-v$(iojs_ver).tar.xz:
 	wget -q  https://iojs.org/dist/v$(iojs_ver)/iojs-v$(iojs_ver).tar.xz
@@ -80,10 +74,10 @@ gzip.installed: gzip-$(gzip_ver).tar.xz
 #glibc.installed: glibc-$(glibc_ver).tar.xz
 #	mkdir -p glibc-build && cd glibc-build && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) CC=/usr/bin/cc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
-glibc-$(glibc_ver).tar.xz:
-	wget -q http://ftp.gnu.org/gnu/glibc/$@
-glibc.installed: glibc-$(glibc_ver).tar.xz
-	mkdir -p glibc-build && cd glibc-build && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) CC=/usr/bin/cc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+#glibc-$(glibc_ver).tar.xz:
+#	wget -q http://ftp.gnu.org/gnu/glibc/$@
+#glibc.installed: glibc-$(glibc_ver).tar.xz
+#	mkdir -p glibc-build && cd glibc-build && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) CC=/usr/bin/cc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 screen-$(screen_ver).tar.gz:
 	wget -q  http://ftp.gnu.org/gnu/screen/$@
