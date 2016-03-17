@@ -20,9 +20,9 @@ else
 MAKE = gmake
 endif
 
-CFLAGS = -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I/usr/include
+CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include
 
-compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure -q -C --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install
+compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
 
 cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 .. && $(MAKE) && $(MAKE) install; touch ../../$@
 
@@ -176,7 +176,7 @@ spatialite-tools.installed: spatialite-tools-$(spatialite-tools_ver).tar.gz libs
 postgis_ver = 2.1.8
 postgis-$(postgis_ver).tar.gz:
 	wget -q  http://download.osgeo.org/postgis/source/postgis-$(postgis_ver).tar.gz
-postgis.installed: postgis-$(postgis_ver).tar.gz postgresql.installed proj.installed geos.installed
+postgis.installed: postgis-$(postgis_ver).tar.gz postgresql.installed proj4.installed geos.installed
 	$(call compile,--with-projdir=$(INSTALL_DIR))
 szip-2.1.tar.gz:
 	wget -q  http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz

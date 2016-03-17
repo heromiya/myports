@@ -1,4 +1,3 @@
-texinfo_ver = 5.2
 pcre_ver = 8.36
 bash_ver = 4.3.30
 bison_ver = 3.0.2
@@ -189,8 +188,4 @@ pcre.installed: pcre-$(pcre_ver).tar.bz2
 rsync-$(rsync_ver).tar.gz:
 	wget -q  http://rsync.samba.org/ftp/rsync/src/rsync-$(rsync_ver).tar.gz
 rsync.installed: rsync-$(rsync_ver).tar.gz
-	$(call compile)
-texinfo-$(texinfo_ver).tar.xz:
-	wget -q  http://ftp.gnu.org/gnu/texinfo/texinfo-$(texinfo_ver).tar.xz
-texinfo.installed: texinfo-$(texinfo_ver).tar.xz
 	$(call compile)
