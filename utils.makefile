@@ -1,4 +1,3 @@
-texinfo_ver = 5.2
 pcre_ver = 8.36
 bash_ver = 4.3.30
 bison_ver = 3.0.2
@@ -16,18 +15,12 @@ neon_ver = 0.30.1
 serf_ver = 1.3.8
 apr_ver = 1.5.1
 apr-util_ver = 1.5.4
-tar_ver =  1.28
-glibc_ver = 2.21
+
 gzip_ver = 1.3.13
 iojs_ver = 2.4.0
-parallel_ver = 20151122
-binutils_ver = 2.25.1
 openthreads_ver = 
 gawk_ver = 4.1.3
 
-gcc_ver = 4.9.3
-mpfr_ver = 3.1.3
-cloog_ver = 0.18.0
 ppl_ver = 0.10.2
 
 nettle_ver = 2.0
@@ -35,12 +28,6 @@ nettle_ver = 2.0
 make_ver = 4.1
 libtool_ver = 2.4.6
 
-perl_ver = 5.22.1
-
-perl-$(perl_ver).tar.gz:
-	wget http://www.cpan.org/src/5.0/$@
-perl.installed: perl-$(perl_ver).tar.gz
-	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure.gnu --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
 
 gawk-$(gawk_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/gawk/$@
@@ -58,32 +45,13 @@ make-$(make_ver).tar.bz2:
 make.installed: make-$(make_ver).tar.bz2
 	$(call compile)
 
-gcc-$(gcc_ver).tar.bz2:
-	wget -q  http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$(gcc_ver)/gcc-$(gcc_ver).tar.bz2
-gcc.installed: gcc-$(gcc_ver).tar.bz2 
-	$(subst ./configure,../gcc-$(gcc_ver)/configure,$(subst tar xaf $< && cd $(basename $(basename $<)),tar xaf $< && $(basename $(basename $<))/contrib/download_prerequisites && mkdir -p gcc-build && cd gcc-build,$(call compile,--with-gmp=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-mpfr-include=$(INSTALL_DIR)/include --with-mpc=$(INSTALL_DIR) --with-cloog=$(INSTALL_DIR) --with-isl=$(INSTALL_DIR) --disable-libjava CFLAGS="$(CFLAGS) -std=c99")))
 # ppl.installedgmp.installed mpfr.installed mpc.installed cloog.installed isl.installed
 ppl-$(ppl_ver).tar.bz2:
 	wget -q  http://bugseng.com/products/ppl/download/ftp/releases/$(ppl_ver)/$@
 ppl.installed: ppl-$(ppl_ver).tar.bz2
 	$(call compile)
 
-cloog-$(cloog_ver).tar.gz:
-	wget -q  -O $@ http://www.bastoul.net/cloog/pages/download/count.php3?url=./$@
-cloog.installed: cloog-$(cloog_ver).tar.gz
-	$(subst tar xaf $< && cd,tar xaf $< && sed -i 's/GIT_HEAD_ID="UNKNOWN"/GIT_HEAD_ID="isl-0.11.1"/' cloog-0.18.0/isl/configure && cd,$(call compile))
 
-
-binutils-$(binutils_ver).tar.bz2:
-	wget -q  http://ftp.gnu.org/gnu/binutils/binutils-$(binutils_ver).tar.bz2 
-binutils.installed: binutils-$(binutils_ver).tar.bz2
-	$(call compile)
-
-parallel-$(parallel_ver).tar.bz2:
-	wget -q  http://ftp.gnu.org/gnu/parallel/parallel-$(parallel_ver).tar.bz2
-
-parallel.installed: parallel-$(parallel_ver).tar.bz2
-	$(call compile)
 
 iojs-v$(iojs_ver).tar.xz:
 	wget -q  https://iojs.org/dist/v$(iojs_ver)/iojs-v$(iojs_ver).tar.xz
@@ -99,10 +67,10 @@ gzip.installed: gzip-$(gzip_ver).tar.xz
 #glibc.installed: glibc-$(glibc_ver).tar.xz
 #	mkdir -p glibc-build && cd glibc-build && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) CC=/usr/bin/cc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
-glibc-$(glibc_ver).tar.xz:
-	wget -q http://ftp.gnu.org/gnu/glibc/$@
-glibc.installed: glibc-$(glibc_ver).tar.xz
-	mkdir -p glibc-build && cd glibc-build && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) CC=/usr/bin/cc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+#glibc-$(glibc_ver).tar.xz:
+#	wget -q http://ftp.gnu.org/gnu/glibc/$@
+#glibc.installed: glibc-$(glibc_ver).tar.xz
+#	mkdir -p glibc-build && cd glibc-build && ../$(basename $(basename $<))/configure --prefix=$(INSTALL_DIR) CC=/usr/bin/cc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 screen-$(screen_ver).tar.gz:
 	wget -q  http://ftp.gnu.org/gnu/screen/$@
@@ -114,15 +82,7 @@ emacs-$(emacs_ver).tar.gz:
 emacs.installed: emacs-$(emacs_ver).tar.gz
 	$(compile)
 
-tar-$(tar_ver).tar.xz:
-	wget -q  http://ftp.gnu.org/gnu/tar/$@
-tar.installed: tar-$(tar_ver).tar.xz
-	tar xJf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig:$(INSTALL_DIR)/share/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" gmake uninstall; gmake && gmake install && cd .. && touch $@
 
-p7zip_9.38.1_src_all.tar.bz2: 
-	wget -q  http://sourceforge.net/projects/p7zip/files/p7zip/9.38.1/$@
-p7zip.installed:
-	tar xaf $< && cd $(basename $(basename $<)) && make
 
 nettle-$(nettle_ver).tar.gz:
 	wget -q  http://ftp.gnu.org/gnu/nettle/nettle-$(nettle_ver).tar.gz
@@ -191,16 +151,7 @@ qiv.installed: qiv-2.3.1.tgz gtk+.installed
 
 #	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) --enable-cxx CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
 
-mpfr-$(mpfr_ver).tar.bz2:
-	wget -q  http://www.mpfr.org/mpfr-$(mpfr_ver)/mpfr-$(mpfr_ver).tar.bz2
-mpfr.installed: mpfr-$(mpfr_ver).tar.bz2
-	tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) --with-mpfr=$(INSTALL_DIR) --with-gmp=$(INSTALL_DIR) CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
 
-mpc_ver = 0.9
-mpc-$(mpc_ver).tar.gz:
-	wget -q  http://www.multiprecision.org/mpc/download/mpc-$(mpc_ver).tar.gz
-mpc.installed: mpc-$(mpc_ver).tar.gz gmp.installed mpfr.installed
-	$(call compile)
 #	tar xaf $< && cd $(basename $(basename $<)) && export CFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) CC=/usr/bin/gcc && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) && $(MAKE) install && cd .. && touch $@
 bison-$(bison_ver).tar.xz:
 	wget -q  http://ftp.gnu.org/gnu/bison/bison-$(bison_ver).tar.xz
@@ -221,8 +172,4 @@ pcre.installed: pcre-$(pcre_ver).tar.bz2
 rsync-$(rsync_ver).tar.gz:
 	wget -q  http://rsync.samba.org/ftp/rsync/src/rsync-$(rsync_ver).tar.gz
 rsync.installed: rsync-$(rsync_ver).tar.gz
-	$(call compile)
-texinfo-$(texinfo_ver).tar.xz:
-	wget -q  http://ftp.gnu.org/gnu/texinfo/texinfo-$(texinfo_ver).tar.xz
-texinfo.installed: texinfo-$(texinfo_ver).tar.xz
 	$(call compile)

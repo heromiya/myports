@@ -1,28 +1,33 @@
 INSTALL_DIR = $(HOME)/apps
-VPATH = .:$(HOME)/apps:/usr
+VPATH = .:$(HOME)/apps:/usr:/usr/lib:/usr/lib64
 
 UNAME_A = $(shell uname -a)
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L/usr/lib64 -L$(INSTALL_DIR)/lib -L/usr/lib
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -L/usr/lib -L/usr/lib64
 else
 m64_FLAG = -m32
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib
 endif
 
+CC = gcc
+CXX = g++
+F77 = gfortran
+
 ifneq (`which make`,)
-MAKE = make -s
+MAKE = make -j3
 else
 MAKE = gmake
 endif
 
-CFLAGS = -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I/usr/include
+CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include
 
-compile = tar xaf $< && cd $(basename $(basename $<)) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure -q -C --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch $@
+compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
 
-cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
+compile_no_touch = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install
 
-sqlite_ver = 3081101
+cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_FLAGS=-I$(INSTALL_DIR)/include -DCMAKE_CXX_FLAGS=-I$(INSTALL_DIR)/include $1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
+
 expat_ver = 2.1.0
 grass_ver = 6.4.5
 fftw_ver = 3.3.4
@@ -35,7 +40,6 @@ qiv_version = 2.3.1
 qwt_ver = 6.0.2
 ossim_ver = 1.8.16
 libxslt_ver = 1.1.28
-spatialite-tools_ver = 4.3.0
 freexl_ver = 1.0.2
 hdf4_ver = 4.2.10
 ITK_ver = 3.12.0
@@ -87,9 +91,9 @@ ossim.installed: ossim-$(ossim_ver).tar.gz
 #	tar xaf $< && cd ossim-1.8.16/ossim && ./configure --prefix=$(INSTALL_DIR) --enable-sharedOssimLibraries --enable-staticOssimLibraries --enable-singleSharedOssimLibrary --enable-singleStaticOssimLibrary --enable-staticOssimApps --with-libtiff=$(INSTALL_DIR) --with-geotiff=$(INSTALL_DIR) --with-openthreads=$(INSTALL_DIR) CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
 
 
-dropbear-2014.66.tar.bz2:
-	wget -q  http://matt.ucc.asn.au/dropbear/releases/dropbear-2014.66.tar.bz2
-dropbear.installed: dropbear-2014.66.tar.bz2
+dropbear-2016.72.tar.bz2:
+	wget -q  http://matt.ucc.asn.au/dropbear/releases/$@
+dropbear.installed: dropbear-2016.72.tar.bz2
 	$(call compile)
 openssh-$(openssh_ver).tar.gz:
 	wget -q  http://www.ftp.ne.jp/OpenBSD/OpenSSH/portable/openssh-$(openssh_ver).tar.gz
@@ -152,10 +156,6 @@ fftw-$(fftw_ver).tar.gz:
 fftw.installed: fftw-$(fftw_ver).tar.gz
 	$(call compile)
 
-sqlite-autoconf-$(sqlite_ver).tar.gz:
-	wget -q  http://www.sqlite.org/2015/$@
-sqlite.installed: sqlite-autoconf-$(sqlite_ver).tar.gz
-	$(call compile,)
 freexl-$(freexl_ver).tar.gz:
 	wget -q  http://www.gaia-gis.it/gaia-sins/freexl-sources/$@
 freexl.installed: freexl-$(freexl_ver).tar.gz
@@ -164,16 +164,6 @@ readosm-1.0.0b.tar.gz:
 	wget -q  http://www.gaia-gis.it/gaia-sins/readosm-sources/$@
 readosm.installed: readosm-1.0.0b.tar.gz
 	$(call compile)
-spatialite-tools-$(spatialite-tools_ver).tar.gz: 
-	wget -q  http://www.gaia-gis.it/gaia-sins/spatialite-tools-sources/spatialite-tools-$(spatialite-tools_ver).tar.gz
-spatialite-tools.installed: spatialite-tools-$(spatialite-tools_ver).tar.gz libspatialite.installed freexl.installed readosm.installed
-	$(call compile,CFLAGS="-O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lspatialite -lxml2" CXXFLAGS="-O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lspatialite -lxml2" PKG_CONFIG_PATH=$(shell pwd)/libspatialite-$(libspatialite_ver):$(shell pwd)/freexl-$(freexl_ver):$(shell pwd)/readosm-1.0.0b)
-
-postgis_ver = 2.1.8
-postgis-$(postgis_ver).tar.gz:
-	wget -q  http://download.osgeo.org/postgis/source/postgis-$(postgis_ver).tar.gz
-postgis.installed: postgis-$(postgis_ver).tar.gz postgresql.installed proj.installed geos.installed
-	$(call compile,--with-projdir=$(INSTALL_DIR))
 szip-2.1.tar.gz:
 	wget -q  http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
 szip.installed: szip-2.1.tar.gz jpeg.installed
@@ -181,13 +171,13 @@ szip.installed: szip-2.1.tar.gz jpeg.installed
 
 hdf-$(hdf4_ver).tar.gz:
 	wget -q  http://www.hdfgroup.org/ftp/HDF/releases/HDF$(hdf4_ver)/src/hdf-$(hdf4_ver).tar.gz
-hdf4.static.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed
-	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure  --enable-static --enable-netcdf --enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static && $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
+hdf4.static.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed lib/libz.so
+	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure  --enable-static --enable-netcdf --enable-static-exec --with-zlib --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static && $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
 
 #	$(call compile, --enable-static --enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static CFLAGS="-static $(CFLAGS)" CXXFLAGS="-static $(CFLAGS)")
 
 
-hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed zlib.installed bison.installed flex.installed
+hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed lib/libz.so bison.installed flex.installed
 	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) --enable-shared --enable-netcdf --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --disable-fortran && $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
 
 #	$(call compile, --prefix=$(INSTALL_DIR) --enable-shared --enable-netcdf --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
@@ -204,10 +194,6 @@ popt-1.14.tar.gz:
 	wget -q  http://rpm5.org/files/popt/popt-1.14.tar.gz
 popt.installed:popt-1.14.tar.gz
 	$(call compile,)
-grass-$(grass_ver).tar.gz:
-	wget -q  http://grass.osgeo.org/grass64/source/grass-$(grass_ver).tar.gz
-grass.installed: grass-$(grass_ver).tar.gz gdal.installed postgresql.installed sqlite.installed fftw.installed geos.installed proj.installed
-	$(call compile, --with-cxx --with-postgres --with-sqlite --with-blas --with-lapack --with-fftw --with-fftw-includes=$(INSTALL_DIR)/include --with-fftw-libs=$(INSTALL_DIR)/lib --with-geos --with-cairo --with-gdal=$(INSTALL_DIR)/bin/gdal-config --with-proj-includes=$(INSTALL_DIR)/include --with-proj-libs=$(INSTALL_DIR)/lib --with-proj-share=$(INSTALL_DIR)/share/proj --with-postgres-includes=$(INSTALL_DIR)/include --with-postgres-libs=$(INSTALL_DIR)/lib --without-tcltk --enable-largefile  --with-python --without-wxwidgets)
 gctpc20.tar.Z:
 	wget -q  http://www.nco.ncep.noaa.gov/pmb/codes/nwprod/util/sorc/wgrib2.cd/grib2/gctpc20.tar.Z
 gctpc20.installed: gctpc20.tar.Z
@@ -226,10 +212,11 @@ HDF-EOS2.installed: HDF-EOS2.19v1.00.tar.Z szip.installed hdf4.static.installed 
 	 tar xaf $< && cd hdfeos && ./configure CC=$(INSTALL_DIR)/bin/h4cc LDFLAGS=-L$(INSTALL_DIR)/lib --with-szlib=$(INSTALL_DIR) --with-hdf4=$(INSTALL_DIR)/hdf4-static --prefix=$(INSTALL_DIR) && make && make install && cd .. && touch $@
 #
 #	ranlib $(INSTALL_DIR)/lib/libmfhdf.a
-espa-product-formatter:
-	git clone https://github.com/USGS-EROS/espa-product-formatter.git
-espa-product-formatter.installed: espa-product-formatter jbigkit.installed
-	cd $< && export PREFIX=$(INSTALL_DIR) && \
+product_formatter_v1.5.1:
+	wget -q -nc https://github.com/USGS-EROS/espa-product-formatter/archive/$@
+#	git clone https://github.com/USGS-EROS/espa-product-formatter.git
+espa-product-formatter.installed: product_formatter_v1.5.1 jbigkit.installed gctpc20.installed libxml2.installed HDF-EOS2.installed
+	tar xaf $< && cd espa-product-formatter-product_formatter_v1.5.1 && export PREFIX=$(INSTALL_DIR) && \
 	export HDFEOS_GCTPINC=$(INSTALL_DIR)/include && \
 	export HDFEOS_GCTPLIB=$(INSTALL_DIR)/lib && \
 	export TIFFINC=$(INSTALL_DIR)/include && \
@@ -252,12 +239,11 @@ espa-product-formatter.installed: espa-product-formatter jbigkit.installed
 	export ESPALIB=$(INSTALL_DIR)/lib && \
 	export CFLAGS="$(CFLAGS) -m64" && make && make install && cd .. && touch $@
 
-
 jbigkit-2.1.tar.gz:
 	wget http://www.cl.cam.ac.uk/%7Emgk25/jbigkit/download/jbigkit-2.1.tar.gz
 
 jbigkit.installed: jbigkit-2.1.tar.gz
-	cd jbigkit-2.1 && make && cp libjbig/libjbig.a libjbig/libjbig85.a $(INSTALL_DIR)/lib/ && cp libjbig/*.h  $(INSTALL_DIR)/include/ && cd .. && touch $@
+	tar xaf $< && cd jbigkit-2.1 && make && cp libjbig/libjbig.a libjbig/libjbig85.a $(INSTALL_DIR)/lib/ && cp libjbig/*.h  $(INSTALL_DIR)/include/ && cd .. && touch $@
 
 netcdf_ver = 4.3.3.1
 netcdf-$(netcdf_ver).tar.gz:
@@ -266,40 +252,12 @@ netcdf-$(netcdf_ver).tar.gz:
 netcdf.installed: netcdf-$(netcdf_ver).tar.gz hdf5.installed
 	$(call compile,--enable-mmap --enable-jna --enable-hdf4)
 
-espa-surface-reflectance:
-	git clone -b ledaps_v2.3.1 https://github.com/USGS-EROS/espa-surface-reflectance.git
+ledaps_v2.4.0:
+	wget -q -nc https://github.com/USGS-EROS/espa-surface-reflectance/archive/$@
+#	git clone -b ledaps_v2.3.1 https://github.com/USGS-EROS/espa-surface-reflectance.git
 
-new.ledaps.installed: espa-surface-reflectance espa-product-formatter.installed libgeotiff.installed gctpc20.installed hdf4.shared.installed HDF-EOS2.installed szip.installed netcdf.installed
-	cd espa-surface-reflectance/ledaps/ledapsSrc/src && export PREFIX=$(INSTALL_DIR) && \
-	export NCDF4INC=$(INSTALL_DIR)/include && \
-	export NCDF4LIB=$(INSTALL_DIR)/lib && \
-	export HDF5INC=$(INSTALL_DIR)/include && \
-	export HDF5LIB=$(INSTALL_DIR)/lib && \
-	export HDFINC=$(INSTALL_DIR)/include && \
-	export HDFLIB=$(INSTALL_DIR)/lib && \
-	export HDFEOS_INC=$(INSTALL_DIR)/include/hdfeos && \
-	export HDFEOS_LIB=$(INSTALL_DIR)/lib && \
-	export HDFEOS_GCTPINC=$(INSTALL_DIR)/include && \
-	export HDFEOS_GCTPLIB=$(INSTALL_DIR)/lib && \
-	export CURLINC=$(INSTALL_DIR)/include && \
-	export CURLLIB=$(INSTALL_DIR)/lib && \
-	export IDNINC=$(INSTALL_DIR)/include && \
-	export IDNLIB=$(INSTALL_DIR)/lib && \
-	export XML2INC=$(INSTALL_DIR)/include/libxml2 && \
-	export XML2LIB=$(INSTALL_DIR)/lib && \
-	export ZLIBINC=$(INSTALL_DIR)/include && \
-	export ZLIBLIB=$(INSTALL_DIR)/lib && \
-	export LZMALIB=$(INSTALL_DIR)/lib && \
-	export LZMAINC=$(INSTALL_DIR)/include && \
-	export ESPALIB=$(INSTALL_DIR)/lib && \
-	export ESPAINC=$(INSTALL_DIR)/include && \
-	export JPEGINC=$(INSTALL_DIR)/include && \
-	export JPEGLIB=$(INSTALL_DIR)/lib && \
-	export DISABLE_OPTIMIZATION=yes && \
-	export ENABLE_DEBUG=yes && \
-	export EXTRA_OPTIONS="$(CFLAGS) -L/usr/lib -lm" &&  \
-	sed -i "s#MATHLIB = -lm#MATHLIB = -L/usr/lib -lm#g" lndsr/Makefile && \
-	ln -fs $(INSTALL_DIR)/libxml2/libxml $(INSTALL_DIR) && make && make install && cd ../../../ && touch $@
+new.ledaps.installed: ledaps_v2.4.0 espa-product-formatter.installed libgeotiff.installed gctpc20.installed hdf4.shared.installed HDF-EOS2.installed szip.installed netcdf.installed jbigkit.installed
+	cd espa-surface-reflectance-ledaps_v2.4.0/ledaps/ledapsSrc/src && export INSTALL_DIR="$(INSTALL_DIR)" && export CFLAGS="$(CFLAGS)" && ../../../../ledaps.install.sh && touch ../../../../$@
 #	export BUILD_STATIC=yes && 
 
 ledapsAnc.installed: new.ledaps.installed netcdf.installed
