@@ -2,12 +2,14 @@ gcc_ver = 4.9.3
 gcc-$(gcc_ver).tar.bz2:
 	wget -q  http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-$(gcc_ver)/gcc-$(gcc_ver).tar.bz2
 gcc.installed: gcc-$(gcc_ver).tar.bz2 tar.installed gmp.installed mpfr.installed mpc.installed cloog.installed isl.installed binutils.installed
-	tar xaf $< && \
-	export CC=/usr/bin/gcc && \
-	export CXX=/usr/bin/g++ && \
+	export CC=gcc && \
+	export CXX=g++ && \
 	export F77=$(F77) && \
 	export LD=$(INSTALL_DIR)/bin/ld && \
 	export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && \
+	export CFLAGS=" $(CFLAGS)   -I$(INSTALL_DIR)/glibc-2.15/include" \
+	export CXXFLAGS=" $(CFLAGS) -I$(INSTALL_DIR)/glibc-2.15/include" \
+	export CPPFLAGS=" $(CFLAGS) -I$(INSTALL_DIR)/glibc-2.15/include" \
 	export LDFLAGS="$(m64_FLAG) -L$(INSTALL_DIR)/lib" && \
 	mkdir -p gcc-build && \
 	cd gcc-build && \
@@ -47,3 +49,4 @@ gcc.installed: gcc-$(gcc_ver).tar.bz2 tar.installed gmp.installed mpfr.installed
 #	$(subst ./configure,,$(subst tar xaf $< && cd $(basename $(basename $<)),tar xaf $< && ,$(call compile,)))
 
 # ppl.installedgmp.installed 
+#	tar xaf $< && \

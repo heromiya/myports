@@ -10,8 +10,8 @@ m64_FLAG = -m32
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib
 endif
 
-CC = /usr/bin/gcc
-CXX = /usr/bin/g++
+CC = gcc
+CXX = g++
 F77 = gfortran
 
 ifneq (`which make`,)
@@ -40,7 +40,6 @@ qiv_version = 2.3.1
 qwt_ver = 6.0.2
 ossim_ver = 1.8.16
 libxslt_ver = 1.1.28
-spatialite-tools_ver = 4.3.0
 freexl_ver = 1.0.2
 hdf4_ver = 4.2.10
 ITK_ver = 3.12.0
@@ -165,16 +164,7 @@ readosm-1.0.0b.tar.gz:
 	wget -q  http://www.gaia-gis.it/gaia-sins/readosm-sources/$@
 readosm.installed: readosm-1.0.0b.tar.gz
 	$(call compile)
-spatialite-tools-$(spatialite-tools_ver).tar.gz: 
-	wget -q  http://www.gaia-gis.it/gaia-sins/spatialite-tools-sources/spatialite-tools-$(spatialite-tools_ver).tar.gz
-spatialite-tools.installed: spatialite-tools-$(spatialite-tools_ver).tar.gz libspatialite.installed freexl.installed readosm.installed
-	$(call compile,CFLAGS="-O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lspatialite -lxml2" CXXFLAGS="-O3 -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/include/libxml2 -L$(INSTALL_DIR)/lib -lspatialite -lxml2" PKG_CONFIG_PATH=$(shell pwd)/libspatialite-$(libspatialite_ver):$(shell pwd)/freexl-$(freexl_ver):$(shell pwd)/readosm-1.0.0b)
 
-postgis_ver = 2.1.8
-postgis-$(postgis_ver).tar.gz:
-	wget -q  http://download.osgeo.org/postgis/source/postgis-$(postgis_ver).tar.gz
-postgis.installed: postgis-$(postgis_ver).tar.gz postgresql.installed proj.installed geos.installed
-	$(call compile,--with-projdir=$(INSTALL_DIR))
 szip-2.1.tar.gz:
 	wget -q  http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
 szip.installed: szip-2.1.tar.gz jpeg.installed

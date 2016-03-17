@@ -29,12 +29,6 @@ nettle_ver = 2.0
 make_ver = 4.1
 libtool_ver = 2.4.6
 
-perl_ver = 5.22.1
-
-perl-$(perl_ver).tar.gz:
-	wget http://www.cpan.org/src/5.0/$@
-perl.installed: perl-$(perl_ver).tar.gz
-	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure.gnu --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
 
 gawk-$(gawk_ver).tar.xz:
 	wget http://ftp.gnu.org/gnu/gawk/$@
@@ -90,10 +84,6 @@ emacs.installed: emacs-$(emacs_ver).tar.gz
 	$(compile)
 
 
-p7zip_9.38.1_src_all.tar.bz2: 
-	wget -q  http://sourceforge.net/projects/p7zip/files/p7zip/9.38.1/$@
-p7zip.installed:
-	tar xaf $< && cd $(basename $(basename $<)) && make
 
 nettle-$(nettle_ver).tar.gz:
 	wget -q  http://ftp.gnu.org/gnu/nettle/nettle-$(nettle_ver).tar.gz
