@@ -22,11 +22,30 @@ endif
 
 CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include
 
-compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
+compile = tar xaf $< && \
+	cd $(basename $(basename $<)) && \
+	export CC=$(CC) && \
+	export CXX=$(CXX) && \
+	export F77=$(F77) && \
+	export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && \
+	export CFLAGS="$(CFLAGS)" && \
+	export CXXFLAGS="$(CFLAGS)" && \
+	export CPPFLAGS="$(CFLAGS)" && \
+	export LDFLAGS="$(LDFLAGS)" && \
+	export FFLAGS="$(CFLAGS)" && \
+	./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
 
 compile_no_touch = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install
 
-cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_FLAGS=-I$(INSTALL_DIR)/include -DCMAKE_CXX_FLAGS=-I$(INSTALL_DIR)/include $1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
+cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" \
+	-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
+	-DCMAKE_C_COMPILER=gcc \
+	-DCMAKE_CXX_COMPILER=g++ \
+	-DCMAKE_C_FLAGS=-I$(INSTALL_DIR)/include \
+	-DCMAKE_CXX_FLAGS=-I$(INSTALL_DIR)/include \
+	-DCMAKE_SHARED_LINKER_FLAGS="$(LDFLAGS)" \
+	-DCMAKE_EXE_LINKER_FLAGS="$(LDFLAGS)" \
+	$1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
 
 expat_ver = 2.1.0
 grass_ver = 6.4.5
