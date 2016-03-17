@@ -20,7 +20,7 @@ else
 MAKE = gmake
 endif
 
-CFLAGS = -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I/usr/include
+CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include
 
 compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
 
@@ -164,7 +164,6 @@ readosm-1.0.0b.tar.gz:
 	wget -q  http://www.gaia-gis.it/gaia-sins/readosm-sources/$@
 readosm.installed: readosm-1.0.0b.tar.gz
 	$(call compile)
-
 szip-2.1.tar.gz:
 	wget -q  http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
 szip.installed: szip-2.1.tar.gz jpeg.installed
