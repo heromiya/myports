@@ -21,7 +21,7 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	--with-gif=internal \
 	--with-libz=internal \
 	--with-png=internal \
-	--with-spatialite=$(INSTALL_DIR) \
+	--without-spatialite \
 	--with-sqlite3=$(INSTALL_DIR) \
 	--with-hdf4 \
 	--with-hdf5 \
@@ -40,13 +40,16 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	CFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
 	CXXFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
 	CPPFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
-	LIBS="-static $(INSTALL_DIR)/lib/libgeos_c.a $(INSTALL_DIR)/lib/libgeos.a $(INSTALL_DIR)/lib64/libstdc++.a $(INSTALL_DIR)/lib/libproj.a $(INSTALL_DIR)/glibc-2.15/lib/libm.a $(INSTALL_DIR)/lib/libsqlite3.a $(INSTALL_DIR)/lib/libxml2.a $(INSTALL_DIR)/lib/libz.a $(INSTALL_DIR)/lib/libfreexl.a $(INSTALL_DIR)/glibc-2.15/lib/libm.a $(INSTALL_DIR)/lib/libgeos_c.a $(INSTALL_DIR)/lib/liblzma.a $(INSTALL_DIR)/glibc-2.15/lib/libpthread.a $(INSTALL_DIR)/glibc-2.15/lib/libdl.a $(INSTALL_DIR)/glibc-2.15/lib/libc.a")
+	LDFLAGS="-L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib" \
+	LIBS="-lgeos -lstdc++ -lproj -lm -lsqlite3 -lxml2 -lz -lfreexl -lm -lgeos_c -llzma" \
 	) && \
 	mkdir -p $(INSTALL_DIR)/include/gdal && \
 	cd $(INSTALL_DIR)/include/gdal && \
 	ls ../gdal*.h | xargs -n 1 ln -sf && \
 	ls ../ogr*.h | xargs -n 1 ln -sf && \
 	ls ../cpl*.h | xargs -n 1 ln -sf
+#	LIBS="-static $(INSTALL_DIR)/lib/libgeos_c.a $(INSTALL_DIR)/lib/libgeos.a $(INSTALL_DIR)/lib64/libstdc++.a $(INSTALL_DIR)/lib/libproj.a $(INSTALL_DIR)/glibc-2.15/lib/libm.a $(INSTALL_DIR)/lib/libsqlite3.a $(INSTALL_DIR)/lib/libxml2.a $(INSTALL_DIR)/lib/libz.a $(INSTALL_DIR)/lib/libfreexl.a $(INSTALL_DIR)/glibc-2.15/lib/libm.a $(INSTALL_DIR)/lib/libgeos_c.a $(INSTALL_DIR)/lib/liblzma.a $(INSTALL_DIR)/glibc-2.15/lib/libpthread.a $(INSTALL_DIR)/glibc-2.15/lib/libdl.a $(INSTALL_DIR)/glibc-2.15/lib/libc.a")
+#$(INSTALL_DIR)/lib/libz.so.1 $(INSTALL_DIR)/glibc-2.15/lib/libc-2.15.so
 #	--with-libtiff=$(INSTALL_DIR) \
 #	--with-geotiff=$(INSTALL_DIR) \
 #	LDFLAGS="$(LDFLAGS)" \
