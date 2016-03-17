@@ -40,9 +40,9 @@ gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.i
 	--without-netcdf \
 	--without-poppler \
 	--without-podofo \
-	CFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
-	CXXFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
-	CPPFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
+	CFLAGS="-g $(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
+	CXXFLAGS="-g $(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
+	CPPFLAGS="-g $(CFLAGS) -I$(INSTALL_DIR)/include/libxml2" \
 	LIBS="-lxml2 -lsqlite3 -lspatialite" \
 	) && \
 	mkdir -p $(INSTALL_DIR)/include/gdal && \
