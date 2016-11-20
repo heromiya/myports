@@ -4,7 +4,7 @@ VPATH = .:$(HOME)/apps:/usr:/usr/lib:/usr/lib64
 UNAME_A = $(shell uname -a)
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -L/usr/lib -L/usr/lib64
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib  -L/usr/lib64 -L/usr/lib
 else
 m64_FLAG = -m32
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib
@@ -15,14 +15,16 @@ CXX = g++
 F77 = gfortran
 
 ifneq (`which make`,)
-MAKE = make -j3
+MAKE = make -j10
 else
 MAKE = gmake
 endif
 
-CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include
-
+CFLAGS = -g -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include
+# 
 compile = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
+
+compile_no_flags = tar xaf $< && cd $(basename $(basename $<)) && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
 
 compile_no_touch = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install
 
@@ -245,24 +247,25 @@ jbigkit-2.1.tar.gz:
 jbigkit.installed: jbigkit-2.1.tar.gz
 	tar xaf $< && cd jbigkit-2.1 && make && cp libjbig/libjbig.a libjbig/libjbig85.a $(INSTALL_DIR)/lib/ && cp libjbig/*.h  $(INSTALL_DIR)/include/ && cd .. && touch $@
 
-netcdf_ver = 4.3.3.1
+netcdf_ver = 4.4.0
 netcdf-$(netcdf_ver).tar.gz:
 #	wget --no-check-certificate https://github.com/Unidata/netcdf-c/archive/$@
 	wget ftp://ftp.unidata.ucar.edu/pub/netcdf/$@
 netcdf.installed: netcdf-$(netcdf_ver).tar.gz hdf5.installed
-	$(call compile,--enable-mmap --enable-jna --enable-hdf4)
+	$(call compile,--enable-mmap --enable-jna --enable-hdf4 --enable-dynamic-loading)
 
-ledaps_v2.4.0:
+ledaps_ver = 2.7.0
+ledaps_v$(ledaps_ver):
 	wget -q -nc https://github.com/USGS-EROS/espa-surface-reflectance/archive/$@
 #	git clone -b ledaps_v2.3.1 https://github.com/USGS-EROS/espa-surface-reflectance.git
 
-new.ledaps.installed: ledaps_v2.4.0 espa-product-formatter.installed libgeotiff.installed gctpc20.installed hdf4.shared.installed HDF-EOS2.installed szip.installed netcdf.installed jbigkit.installed
-	cd espa-surface-reflectance-ledaps_v2.4.0/ledaps/ledapsSrc/src && export INSTALL_DIR="$(INSTALL_DIR)" && export CFLAGS="$(CFLAGS)" && ../../../../ledaps.install.sh && touch ../../../../$@
+new.ledaps.installed: ledaps_v$(ledaps_ver) espa-product-formatter.installed libgeotiff.installed gctpc20.installed hdf4.shared.installed HDF-EOS2.installed szip.installed netcdf.installed jbigkit.installed
+	cd espa-surface-reflectance-ledaps_v$(ledaps_ver)/ledaps/ledapsSrc/src && export INSTALL_DIR="$(INSTALL_DIR)" && export CFLAGS="$(CFLAGS)" && ../../../../ledaps.install.sh && touch ../../../../$@
 #	export BUILD_STATIC=yes && 
 
 ledapsAnc.installed: new.ledaps.installed netcdf.installed
 	ln -sf $(INSTALL_DIR)/include/netcdf.h $(INSTALL_DIR)/include/hdf4_netcdf.h && \
-	cd espa-surface-reflectance/ledaps/ledapsAncSrc && \
+	cd espa-surface-reflectance-ledaps_v$(ledaps_ver)/ledaps/ledapsAncSrc && \
 	export PREFIX=$(INSTALL_DIR) && \
 	export NCDF4INC=$(INSTALL_DIR)/include && \
 	export NCDF4LIB=$(INSTALL_DIR)/lib && \

@@ -3,7 +3,6 @@ bash_ver = 4.3.30
 bison_ver = 3.0.2
 flex_ver = 2.5.39
 raptor_ver = 2.0.15
-emacs_ver = 24.4
 screen_ver = 4.2.1
 w3m_version = 0.5.3
 wget_ver = 1.16.1
@@ -77,10 +76,6 @@ screen-$(screen_ver).tar.gz:
 screen.installed: screen-$(screen_ver).tar.gz
 	$(compile)
 
-emacs-$(emacs_ver).tar.gz:
-	wget -q  http://ftp.yzu.edu.tw/gnu/emacs/$@
-emacs.installed: emacs-$(emacs_ver).tar.gz
-	$(compile)
 
 
 

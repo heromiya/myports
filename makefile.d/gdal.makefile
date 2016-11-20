@@ -1,10 +1,10 @@
-gdal_ver = 1.11.1
+gdal_ver = 1.11.4
 
 gdal-$(gdal_ver).tar.gz:
 	wget -q  http://download.osgeo.org/gdal/$(gdal_ver)/$@
 # libkml.installed
 gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.installed geos.installed openjpeg.installed python.installed libspatialite.installed curl.installed freexl.installed pcre.installed epsilon.installed postgresql.installed libgeotiff.installed tiff.installed libxml2.installed xz.installed hdf4.shared.installed lib/libhdf5.so
-	$(call compile,\
+	$(call compile_no_flags,\
 	--with-pg=$(INSTALL_DIR)/bin/pg_config \
 	--with-static-proj4=$(INSTALL_DIR)/lib \
 	--with-geos=$(INSTALL_DIR)/bin/geos-config \

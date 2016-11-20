@@ -7,14 +7,15 @@ gcc.installed: gcc-$(gcc_ver).tar.bz2 tar.installed gmp.installed mpfr.installed
 	export F77=$(F77) && \
 	export LD=$(INSTALL_DIR)/bin/ld && \
 	export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && \
-	export CFLAGS=" $(CFLAGS)   -I$(INSTALL_DIR)/glibc-2.15/include" \
-	export CXXFLAGS=" $(CFLAGS) -I$(INSTALL_DIR)/glibc-2.15/include" \
-	export CPPFLAGS=" $(CFLAGS) -I$(INSTALL_DIR)/glibc-2.15/include" \
-	export LDFLAGS="$(m64_FLAG) -L$(INSTALL_DIR)/lib" && \
+	export CFLAGS="-m64 -I$(INSTALL_DIR)/glibc-2.15/include -D_GNU_SOURCE -liconv" \
+	export CXXFLAGS="-m64 -I$(INSTALL_DIR)/glibc-2.15/include -D_GNU_SOURCE -liconv" \
+	export CPPFLAGS="-m64 -I$(INSTALL_DIR)/glibc-2.15/include -D_GNU_SOURCE -liconv" \
+	export LDFLAGS="-m64 -L$(INSTALL_DIR)/lib -D_GNU_SOURCE -liconv" && \
+	export LIBS="-liconv" && \
 	mkdir -p gcc-build && \
 	cd gcc-build && \
 	../gcc-$(gcc_ver)/configure \
-	--prefix=$(INSTALL_DIR) \
+	--prefix=$(INSTALL_DIR)/gcc-$(gcc_ver) \
 	--with-gmp=$(INSTALL_DIR) \
 	--with-gmp-lib=$(INSTALL_DIR)/lib \
 	--with-gmp-include=$(INSTALL_DIR)/include \
@@ -30,11 +31,13 @@ gcc.installed: gcc-$(gcc_ver).tar.bz2 tar.installed gmp.installed mpfr.installed
 	--with-isl=$(INSTALL_DIR) \
 	--with-isl-lib=$(INSTALL_DIR)/lib \
 	--with-isl-include=$(INSTALL_DIR)/include \
-	--disable-libjava && \
+	--disable-libjava \
+	--disable-multilib && \
 	$(MAKE) && \
 	$(MAKE) install && \
 	touch ../$@
-#$(CFLAGS) 
+#-I$(INSTALL_DIR)/glibc-2.15/include
+#$(m64_FLAG) $(CFLAGS) 
 #	--enable-libada \
 #	--enable-libssp \
 #	--enable-libquadmath \

@@ -1,4 +1,4 @@
-glibc_ver = 2.15
+glibc_ver = 2.17
 glibc-$(glibc_ver).tar.gz:
 	wget http://ftp.gnu.org/gnu/glibc/glibc-$(glibc_ver).tar.gz
 glibc.installed: glibc-$(glibc_ver).tar.gz
