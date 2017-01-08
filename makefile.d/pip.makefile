@@ -1,7 +1,7 @@
 setuptools-20.2.2.tar.gz: python.installed
-	wget -q https://pypi.python.org/packages/source/s/setuptools/$@
+	wget -q --no-check-certificate https://pypi.python.org/packages/source/s/setuptools/$@
 bin/easy_install: setuptools-20.2.2.tar.gz
-	tar xaf $< && cd setuptools-20.2.2 && ./setup.py install && touch $@
+	tar xaf $< && cd setuptools-20.2.2 && ./setup.py install
 
-pip.installed: setuptools.installed
+pip.installed: bin/easy_install
 	easy_install pip && touch $@
