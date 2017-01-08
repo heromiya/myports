@@ -4,7 +4,6 @@ bison_ver = 3.0.2
 flex_ver = 2.5.39
 raptor_ver = 2.0.15
 screen_ver = 4.2.1
-w3m_version = 0.5.3
 wget_ver = 1.16.1
 openssh_ver = 6.7p1
 rsync_ver = 3.1.1
@@ -102,12 +101,6 @@ lynx$(lynx_ver).tar.bz2:
 lynx.installed:lynx$(lynx_ver).tar.bz2 openssl.installed
 	tar xaf $< && cd lynx2-8-8 && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) --with-ssl=$(INSTALL_DIR)/lib --enable-persistent-cookies && make && make install && cd .. && touch $@
 
-w3m.installed: w3m-$(w3m_version).tar.gz w3m-bdwgc72.diff w3m-0.5.3-button.patch
-	tar xaf $< && cd $(basename $(basename $<)) && patch -p1 < ../w3m-bdwgc72.diff && patch -p1 < ../w3m-0.5.3-button.patch && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && ./configure --with-ssl --prefix=$(INSTALL_DIR) --with-termlib="ncurses terminfo termcap" --enable-image=no --disable-xface --disable-mouse && make && make install && cd .. && touch $@
-w3m-bdwgc72.diff:
-	wget -q  http://sourceforge.net/p/w3m/patches/_discuss/thread/0f07465b/645b/attachment/w3m-bdwgc72.diff
-w3m-0.5.3-button.patch:
-	wget -q  --no-check-certificate https://raw.githubusercontent.com/Vliegendehuiskat/slackbuilds/master/network/w3m/patches/w3m-0.5.3-button.patch
 
 subversion-$(subversion_ver).tar.bz2:
 	wget -q  http://mirror.symnds.com/software/Apache/subversion/$@
