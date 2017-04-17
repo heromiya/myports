@@ -4,15 +4,15 @@ postgis-$(postgis_ver).tar.gz:
 postgis-1.5.installed: postgis-$(postgis_ver).tar.gz postgresql-8.4.installed proj4.installed geos.installed
 	tar xaf $< && \
 	cd $(basename $(basename $<)) && \
-	export CC=gcc-4.8 && \
-	export CXX=g++-4.8 && \
-	export CFLAGS="-fPIC -std=gnu99 -I$(INSTALL_DIR)/postgresql-8.4/include -I./liblwgeom" && \
-	export CXXFLAGS="-fPIC -std=gnu99 -I$(INSTALL_DIR)/postgresql-8.4/include -I./liblwgeom" && \
+	export CC=gcc && \
+	export CXX=g++ && \
+	export CFLAGS="-I$(INSTALL_DIR)/postgresql-8.4/include -I./liblwgeom -lpthread -ldl " && \
+	export CXXFLAGS="-I$(INSTALL_DIR)/postgresql-8.4/include -I./liblwgeom -lpthread -ldl " && \
 	export LDFLAGS="-L$(INSTALL_DIR)/postgresql-8.4/lib" && \
 	./configure --prefix=$(INSTALL_DIR)/postgresql-8.4 \
-	--enable-thread-safety \
 	--without-readline \
-	--with-pgconfig=$(INSTALL_DIR)/postgresql-8.4/bin/pg_config && \
+	--with-pgconfig=$(INSTALL_DIR)/postgresql-8.4/bin/pg_config \
+	--with-geosconfig=$(INSTALL_DIR)/bin/geos-config && \
 	sed -i 's#include "liblwgeom.h"#include "../liblwgeom/liblwgeom.h"#g' postgis/* && \
 	$(MAKE) && \
 	$(MAKE) install && \

@@ -1,4 +1,4 @@
-zlib_ver = 1.2.8
+zlib_ver = 1.2.11
 zlib-$(zlib_ver).tar.gz:
 	wget -N -q  http://zlib.net/zlib-$(zlib_ver).tar.gz
 zlib.installed libz.so: zlib-$(zlib_ver).tar.gz

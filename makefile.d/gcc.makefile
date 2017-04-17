@@ -11,6 +11,7 @@ gcc.installed: gcc-$(gcc_ver).tar.bz2 tar.installed gmp.installed mpfr.installed
 	export CXXFLAGS=" $(CFLAGS) -I$(INSTALL_DIR)/glibc-2.15/include" \
 	export CPPFLAGS=" $(CFLAGS) -I$(INSTALL_DIR)/glibc-2.15/include" \
 	export LDFLAGS="$(m64_FLAG) -L$(INSTALL_DIR)/lib" && \
+	tar xaf $< && \
 	mkdir -p gcc-build && \
 	cd gcc-build && \
 	../gcc-$(gcc_ver)/configure \

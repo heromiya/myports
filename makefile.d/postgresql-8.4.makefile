@@ -12,13 +12,13 @@ postgresql-8.4.installed: postgresql-8.4.22.tar.bz2 texinfo.installed lib/librea
 	export CXX=g++ && \
 	export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && \
 	./configure --prefix=$(INSTALL_DIR)/postgresql-8.4 \
-	--enable-thread-safety \
 	--without-readline && \
 	$(MAKE) && \
 	$(MAKE) install && \
 	cd .. && touch $@
 
-
+# CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)"
+#	--enable-thread-safety \
 #	export CFLAGS="$(CFLAGS)" && \
 #	export CXXFLAGS="$(CFLAGS)" && \
 #	export CPPFLAGS="$(CFLAGS)" && \
