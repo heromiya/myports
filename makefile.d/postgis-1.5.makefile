@@ -1,6 +1,6 @@
 postgis_ver = 1.5.8
 postgis-$(postgis_ver).tar.gz:
-	wget -q  http://download.osgeo.org/postgis/source/postgis-$(postgis_ver).tar.gz
+	wget -q  http://download.osgeo.org/postgis/source/$@
 postgis-1.5.installed: postgis-$(postgis_ver).tar.gz postgresql-8.4.installed proj4.installed geos.installed
 	tar xaf $< && \
 	cd $(basename $(basename $<)) && \
