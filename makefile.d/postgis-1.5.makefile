@@ -8,9 +8,10 @@ postgis-1.5.installed: postgis-$(postgis_ver).tar.gz postgresql-8.4.installed pr
 	export CXX=g++ && \
 	export CFLAGS="-I$(INSTALL_DIR)/postgresql-8.4/include -I./liblwgeom -lpthread -ldl " && \
 	export CXXFLAGS="-I$(INSTALL_DIR)/postgresql-8.4/include -I./liblwgeom -lpthread -ldl " && \
-	export LDFLAGS="-L$(INSTALL_DIR)/postgresql-8.4/lib" && \
+	export LDFLAGS="-L$(INSTALL_DIR)/postgresql-8.4/lib -L/lib/i386-linux-gnu/i686/cmov " && \
 	./configure --prefix=$(INSTALL_DIR)/postgresql-8.4 \
 	--without-readline \
+	--without-gui \
 	--with-pgconfig=$(INSTALL_DIR)/postgresql-8.4/bin/pg_config \
 	--with-geosconfig=$(INSTALL_DIR)/bin/geos-config && \
 	sed -i 's#include "liblwgeom.h"#include "../liblwgeom/liblwgeom.h"#g' postgis/* && \
