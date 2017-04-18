@@ -80,7 +80,7 @@ screen.installed: screen-$(screen_ver).tar.gz
 emacs-$(emacs_ver).tar.gz:
 	wget -q  http://ftp.yzu.edu.tw/gnu/emacs/$@
 emacs.installed: emacs-$(emacs_ver).tar.gz
-	$(compile)
+	$(call compile,--with-x-toolkit=no --with-xpm=no)
 
 
 
