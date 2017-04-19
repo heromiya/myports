@@ -4,10 +4,10 @@ VPATH = .:$(HOME)/apps:/usr:/usr/lib:/usr/lib64
 UNAME_A = $(shell uname -a)
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -L/usr/lib -L/usr/lib64
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -L/usr/lib -L/usr/lib64 -lz -llzma -static
 else
 m64_FLAG = -m32
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib -lz -llzma -static
 endif
 
 CC = gcc
@@ -20,7 +20,7 @@ else
 MAKE = gmake
 endif
 
-CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include
+CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include -L$(INSTALL_DIR)/lib -lz -llzma -static
 
 compile = tar xaf $< && \
 	cd $(basename $(basename $<)) && \
@@ -39,12 +39,16 @@ compile_no_touch = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC
 
 cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" \
 	-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
-	-DCMAKE_C_COMPILER=gcc \
+	-DCMAKE_C_COMPILER=/usr/bin/gcc \
 	-DCMAKE_CXX_COMPILER=g++ \
-	-DCMAKE_C_FLAGS=-I$(INSTALL_DIR)/include \
-	-DCMAKE_CXX_FLAGS=-I$(INSTALL_DIR)/include \
+	-DCMAKE_C_FLAGS="$(CFLAGS)"\
+	-DCMAKE_CXX_FLAGS="$(CFLAGS)" \
 	-DCMAKE_SHARED_LINKER_FLAGS="$(LDFLAGS)" \
+	-DCMAKE_STATIC_LINKER_FLAGS="$(LDFLAGS)" \
 	-DCMAKE_EXE_LINKER_FLAGS="$(LDFLAGS)" \
+	-DCMAKE_SKIP_INSTALL_RPATH=TRUE \
+	-DINSTALL_RPATH= \
+	-DCMAKE_SKIP_RPATH=TRUE \
 	$1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
 
 expat_ver = 2.1.0

@@ -3,7 +3,13 @@ geos_ver = 3.4.2
 geos-$(geos_ver).tar.bz2:
 	wget -q  http://download.osgeo.org/geos/geos-$(geos_ver).tar.bz2
 geos.installed: geos-$(geos_ver).tar.bz2 proj4.installed python.installed
-	tar xaf $< && cd geos-$(geos_ver) && $(call cmake,\
+	tar xaf $< && \
+	cd $(basename $(basename $<)) && \
+	./configure --prefix=$(INSTALL_DIR) --enable-shared  && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
+
+#	$(call compile,--enable-static --enable-shared LDFLAGS=-L$(INSTALL_DIR)/lib LIBS="-lgeos -lgeos_c")
+
+#	tar xaf $< && cd geos-$(geos_ver) && $(call cmake,\
 	-DCMAKE_C_COMPILER=/usr/bin/gcc \
 	-DCMAKE_CXX_COMPILER=/usr/bin/g++ \
 	-DCMAKE_SHARED_LINKER_FLAGS="/usr/lib/gcc/i586-linux-gnu/4.8/libstdc++.a" \

@@ -9,5 +9,5 @@ openssl.installed: openssl-$(openssl_ver).tar.gz libz.so
 	export CXXFLAGS="$(CFLAGS)" && \
 	export CPPFLAGS="$(CFLAGS)" && \
 	export LDFLAGS="$(LDFLAGS)" && \
-	./config --prefix=$(INSTALL_DIR) zlib shared && \
+	./config --prefix=$(INSTALL_DIR) zlib no-shared && \
 	make && make install && touch ../$@
