@@ -1,4 +1,3 @@
-jpeg_ver = 9b
 
 jpegsrc.v$(jpeg_ver).tar.gz:
 	wget http://www.ijg.org/files/jpegsrc.v$(jpeg_ver).tar.gz

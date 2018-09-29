@@ -1,8 +1,7 @@
-geos_ver = 3.4.2
-
+# python.installed
 geos-$(geos_ver).tar.bz2:
 	wget -q  http://download.osgeo.org/geos/geos-$(geos_ver).tar.bz2
-geos.installed: geos-$(geos_ver).tar.bz2 proj4.installed python.installed
+geos.installed: geos-$(geos_ver).tar.bz2 proj4.installed
 	tar xaf $< && \
 	cd $(basename $(basename $<)) && \
 	./configure --prefix=$(INSTALL_DIR) --enable-shared  && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@

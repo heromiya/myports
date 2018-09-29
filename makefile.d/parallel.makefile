@@ -1,4 +1,4 @@
-parallel_ver = 20160222
+parallel_ver = 20180822
 
 parallel-$(parallel_ver).tar.bz2:
 	wget -q  http://ftp.gnu.org/gnu/parallel/parallel-$(parallel_ver).tar.bz2

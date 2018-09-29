@@ -4,10 +4,10 @@ VPATH = .:$(HOME)/apps:/usr:/usr/lib:/usr/lib64
 UNAME_A = $(shell uname -a)
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -L/usr/lib -L/usr/lib64 -lz -llzma -static
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -L/usr/lib -L/usr/lib64 -lz -llzma
 else
 m64_FLAG = -m32
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib -lz -llzma -static
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib -lz -llzma
 endif
 
 CC = gcc
@@ -20,7 +20,7 @@ else
 MAKE = gmake
 endif
 
-CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include -L$(INSTALL_DIR)/lib -lz -llzma -static
+CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include -L$(INSTALL_DIR)/lib -lz -llzma
 
 compile = tar xaf $< && \
 	cd $(basename $(basename $<)) && \
@@ -51,6 +51,10 @@ cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" \
 	-DCMAKE_SKIP_RPATH=TRUE \
 	$1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
 
+gdal_ver = 2.3.1
+geos_ver = 3.7.0
+libspatialite_ver = 4.3.0a
+
 expat_ver = 2.1.0
 grass_ver = 6.4.5
 fftw_ver = 3.3.4
@@ -69,6 +73,13 @@ ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
 R_ver = 3.1.3
 laszip_ver = 2.2.0
+tiff_ver = 4.0.9
+jpeg_ver = 9c
+
+libssh2_ver = 1.8.0
+openssl_ver = 1.0.2p
+python_ver = 3.5.6
+
 
 include utils.makefile
 include makefile.d/*.makefile
@@ -187,9 +198,10 @@ readosm-1.0.0b.tar.gz:
 	wget -q  http://www.gaia-gis.it/gaia-sins/readosm-sources/$@
 readosm.installed: readosm-1.0.0b.tar.gz
 	$(call compile)
-szip-2.1.tar.gz:
-	wget -q  http://www.hdfgroup.org/ftp/lib-external/szip/2.1/src/szip-2.1.tar.gz
-szip.installed: szip-2.1.tar.gz jpeg.installed
+szip_ver=2.1.1
+szip-$(szip_ver).tar.gz:
+	wget -q  http://www.hdfgroup.org/ftp/lib-external/szip/$(szip_ver)/src/$@
+szip.installed: szip-$(szip_ver).tar.gz jpeg.installed
 	$(call compile,--enable-encoding)
 
 hdf-$(hdf4_ver).tar.gz:

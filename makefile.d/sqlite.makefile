@@ -1,6 +1,6 @@
-sqlite_ver = 3110100
+sqlite_ver = 3240000
 sqlite-autoconf-$(sqlite_ver).tar.gz:
-	wget -nc -q  http://www.sqlite.org/2016/$@
+	wget -nc -q  https://www.sqlite.org/2018/$@
 libsqlite3.so sqlite.installed: sqlite-autoconf-$(sqlite_ver).tar.gz
 	$(call compile,\
 	CFLAGS="$(CFLAGS)   -I$(INSTALL_DIR)/glibc-2.15/include" \

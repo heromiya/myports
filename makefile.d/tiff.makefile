@@ -1,4 +1,3 @@
-tiff_ver = 3.9.7
 tiff-$(tiff_ver).tar.gz:
 	wget -q  http://download.osgeo.org/libtiff/$@
 tiff.installed: tiff-$(tiff_ver).tar.gz jpeg.installed
@@ -11,4 +10,5 @@ tiff.installed: tiff-$(tiff_ver).tar.gz jpeg.installed
 	--with-lzma-include-dir=$(INSTALL_DIR)/include \
 	--with-lzma-lib-dir=$(INSTALL_DIR)/lib \
 	--without-x \
+	--enable-shared \
 	)

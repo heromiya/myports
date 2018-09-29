@@ -1,7 +1,9 @@
-openjpeg-read-only:
-	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
-openjpeg.installed: openjpeg-read-only tiff.installed
-	cd openjpeg-read-only && \
+v2.3.0.tar.gz:
+	wget -q https://github.com/uclouvain/openjpeg/archive/$@
+#	svn checkout http://openjpeg.googlecode.com/svn/tags/version.2.0.1 openjpeg-read-only
+openjpeg.installed: v2.3.0.tar.gz tiff.installed
+	tar xaf $< && \
+	cd openjpeg-2.3.0 && \
 	cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
 	-DCMAKE_C_COMPILER=gcc \
 	-DCMAKE_CXX_COMPILER=g++ \
