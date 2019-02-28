@@ -80,6 +80,9 @@ libssh2_ver = 1.8.0
 openssl_ver = 1.0.2p
 python_ver = 3.5.6
 
+pcre_ver = 8.43
+readline_ver = 6.3
+
 
 include utils.makefile
 include makefile.d/*.makefile

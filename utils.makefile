@@ -1,4 +1,3 @@
-pcre_ver = 8.36
 bash_ver = 4.3.30
 bison_ver = 3.0.2
 flex_ver = 2.5.39
@@ -164,10 +163,6 @@ flex.installed: flex-$(flex_ver).tar.xz
 bash-$(bash_ver).tar.gz:
 	wget -q  http://ftp.gnu.org/gnu/bash/bash-$(bash_ver).tar.gz
 bash.installed: bash-$(bash_ver).tar.gz
-	$(call compile)
-pcre-$(pcre_ver).tar.bz2:
-	wget -q  http://downloads.sourceforge.net/project/pcre/pcre/$(pcre_ver)/pcre-$(pcre_ver).tar.bz2
-pcre.installed: pcre-$(pcre_ver).tar.bz2
 	$(call compile)
 rsync-$(rsync_ver).tar.gz:
 	wget -q  http://rsync.samba.org/ftp/rsync/src/rsync-$(rsync_ver).tar.gz
