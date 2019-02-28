@@ -1,6 +1,5 @@
 bash_ver = 4.3.30
 bison_ver = 3.0.2
-flex_ver = 2.5.39
 raptor_ver = 2.0.15
 emacs_ver = 24.4
 screen_ver = 4.2.1
@@ -155,10 +154,6 @@ qiv.installed: qiv-2.3.1.tgz gtk+.installed
 bison-$(bison_ver).tar.xz:
 	wget -q  http://ftp.gnu.org/gnu/bison/bison-$(bison_ver).tar.xz
 bison.installed: bison-$(bison_ver).tar.xz
-	$(call compile)
-flex-$(flex_ver).tar.xz:
-	wget -q  http://sourceforge.net/projects/flex/files/flex-$(flex_ver).tar.xz
-flex.installed: flex-$(flex_ver).tar.xz
 	$(call compile)
 bash-$(bash_ver).tar.gz:
 	wget -q  http://ftp.gnu.org/gnu/bash/bash-$(bash_ver).tar.gz
