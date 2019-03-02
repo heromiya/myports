@@ -6,5 +6,6 @@ hdf5.installed:
 	cd hdf5-$(hdf5_ver)/build && \
 	cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) $1 .. && \
 	$(MAKE) && $(MAKE) install  && \
-	cd $(INSTALL_DIR)/lib && \
-	for FILE in libhdf5*; do mv -f $$FILE `echo $$FILE | sed 's/-shared//; s/-static//'`; done
+	cd bin && cp libhdf5* $(INSTALL_DIR)/lib/ && touch ../../../$@
+
+#	for FILE in libhdf5*; do mv -f $$FILE `echo $$FILE | sed 's/-shared//; s/-static//'`; done && 

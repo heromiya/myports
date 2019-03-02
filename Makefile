@@ -51,7 +51,7 @@ cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" \
 	-DCMAKE_SKIP_RPATH=TRUE \
 	$1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
 
-gdal_ver = 2.3.1
+gdal_ver = 2.3.3
 geos_ver = 3.7.0
 libspatialite_ver = 4.3.0a
 
@@ -77,6 +77,7 @@ jpeg_ver = 9c
 szip_ver=2.1.1
 hdf4_ver = 4.2.14
 hdf5_ver = 1.10.1
+sqlite_ver = 3270200
 
 libssh2_ver = 1.8.0
 openssl_ver = 1.0.2p
