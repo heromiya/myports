@@ -1,8 +1,9 @@
-zlib_ver = 1.2.11
 zlib-$(zlib_ver).tar.gz:
-	wget -N -q  http://zlib.net/zlib-$(zlib_ver).tar.gz
+	wget -N $(wget_opt)  http://zlib.net/zlib-$(zlib_ver).tar.gz
 zlib.installed: zlib-$(zlib_ver).tar.gz
 	tar xaf $< && \
+	export CFLAGS=-m32 && \
+	export LDFLAGS=-m32 && \
 	cd $(basename $(basename $<)) && \
 	./configure --prefix=$(INSTALL_DIR) && \
 	$(MAKE) && $(MAKE) install && touch ../$@

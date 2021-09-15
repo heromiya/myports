@@ -51,7 +51,7 @@ cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" \
 	-DCMAKE_SKIP_RPATH=TRUE \
 	$1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
 
-gdal_ver = 2.3.1
+gdal_ver = 2.3.3
 geos_ver = 3.7.0
 libspatialite_ver = 4.3.0a
 
@@ -68,18 +68,31 @@ qwt_ver = 6.0.2
 ossim_ver = 1.8.16
 libxslt_ver = 1.1.28
 freexl_ver = 1.0.2
-hdf4_ver = 4.2.10
 ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
 R_ver = 3.1.3
 laszip_ver = 2.2.0
 tiff_ver = 4.0.9
 jpeg_ver = 9c
+szip_ver=2.1.1
+hdf4_ver = 4.2.14
+hdf5_ver = 1.10.1
+sqlite_ver = 3270200
 
 libssh2_ver = 1.8.0
 openssl_ver = 1.0.2p
 python_ver = 3.5.6
 
+pcre_ver = 8.43
+readline_ver = 6.3
+xz_ver = 5.2.4
+zlib_ver = 1.2.11
+flex_ver = 2.5.39
+cmake_ver = 3.10.3
+
+
+
+wget_opt = -q --no-check-certificate
 
 include utils.makefile
 include makefile.d/*.makefile
@@ -198,22 +211,11 @@ readosm-1.0.0b.tar.gz:
 	wget -q  http://www.gaia-gis.it/gaia-sins/readosm-sources/$@
 readosm.installed: readosm-1.0.0b.tar.gz
 	$(call compile)
-szip_ver=2.1.1
-szip-$(szip_ver).tar.gz:
-	wget -q  http://www.hdfgroup.org/ftp/lib-external/szip/$(szip_ver)/src/$@
-szip.installed: szip-$(szip_ver).tar.gz jpeg.installed
-	$(call compile,--enable-encoding)
 
-hdf-$(hdf4_ver).tar.gz:
-	wget -q  http://www.hdfgroup.org/ftp/HDF/releases/HDF$(hdf4_ver)/src/hdf-$(hdf4_ver).tar.gz
-hdf4.static.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed lib/libz.so
-	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure  --enable-static --enable-netcdf --enable-static-exec --with-zlib --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static && $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
 
 #	$(call compile, --enable-static --enable-static-exec --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --prefix=$(INSTALL_DIR)/hdf4-static CFLAGS="-static $(CFLAGS)" CXXFLAGS="-static $(CFLAGS)")
 
 
-hdf4.shared.installed: hdf-$(hdf4_ver).tar.gz szip.installed jpeg.installed lib/libz.so bison.installed flex.installed
-	tar xaf $< && cd $(basename $(basename $<)) && export CC=gcc && export CXX=g++ && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export LDFLAGS="$(LDFLAGS)" && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export F77=gfortran && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) --enable-shared --enable-netcdf --with-zlib=$(INSTALL_DIR) --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR) --disable-fortran && $(MAKE) $(LIBTOOL) &&  $(MAKE) install && cd .. && touch $@
 
 #	$(call compile, --prefix=$(INSTALL_DIR) --enable-shared --enable-netcdf --with-szlib=$(INSTALL_DIR) --with-jpeg=$(INSTALL_DIR))
 # && cp -rf hdf-$(hdf4_ver)/hdf4/* ~/apps/
