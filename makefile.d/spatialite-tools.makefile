@@ -1,4 +1,4 @@
-spatialite-tools_ver = 4.3.0
+spatialite-tools_ver = 5.1.0
 
 spatialite-tools-$(spatialite-tools_ver).tar.gz: 
 	wget -q  http://www.gaia-gis.it/gaia-sins/spatialite-tools-sources/spatialite-tools-$(spatialite-tools_ver).tar.gz
@@ -6,8 +6,15 @@ spatialite-tools.installed: spatialite-tools-$(spatialite-tools_ver).tar.gz libs
 	$(call compile,\
 	CC=gcc \
 	CXX=g++ \
-	CFLAGS="-fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/glibc-2.15/include -I$(INSTALL_DIR)/include/libxml2  -I$(INSTALL_DIR)/include/libxml " \
-	CXXFLAGS="-fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/glibc-2.15/include -I$(INSTALL_DIR)/include/libxml2  -I$(INSTALL_DIR)/include/libxml " \
+    LIBS="-L$(CONDA_PREFIX) -liconv" \
+	CFLAGS="  -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/glibc-2.15/include -I$(INSTALL_DIR)/include/libxml2 -I$(CONDA_PREFIX)/include/libxml2 -I$(INSTALL_DIR)/include/libxml " \
+	CXXFLAGS="-fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/glibc-2.15/include -I$(INSTALL_DIR)/include/libxml2 -I$(CONDA_PREFIX)/include/libxml2 -I$(INSTALL_DIR)/include/libxml " \
+    LIBSPATIALITE_CFLAGS=" $(CFLAGS) $(LDFLAGS) " \
+    LIBSPATIALITE_LIBS=" -lspatialite " \
+    LIBREADOSM_CFLAGS=" $(CFLAGS) $(LDFLAGS) " \
+    LIBREADOSM_LIBS=" -lreadosm " \
+    LIBXML2_CFLAGS=" $(CFLAGS) -I$(INSTALL_DIR)/include/libxml2 -I$(CONDA_PREFIX)/include/libxml2 -I$(INSTALL_DIR)/include/libxml $(LDFLAGS) " \
+    LIBXML2_LIBS=" -lxml2 " \
 	PKG_CONFIG_PATH=$(shell pwd)/libspatialite-$(libspatialite_ver):$(shell pwd)/freexl-$(freexl_ver):$(shell pwd)/readosm-1.0.0b)
 
 

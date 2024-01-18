@@ -1,13 +1,15 @@
 INSTALL_DIR = $(HOME)/apps
 VPATH = .:$(HOME)/apps:/usr:/usr/lib:/usr/lib64
 
+STATIC_FLAGS= -static -static-libgcc -static-libstdc++
+
 UNAME_A = $(shell uname -a)
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -L/usr/lib -L/usr/lib64 -lz -llzma
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -L$(CONDA_PREFIX)/lib -L/usr/lib -L/usr/lib64
 else
 m64_FLAG = -m32
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib -lz -llzma
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib -L$(CONDA_PREFIX)/lib
 endif
 
 CC = gcc
@@ -20,7 +22,7 @@ else
 MAKE = gmake
 endif
 
-CFLAGS = -fPIC $(m64_FLAG) -std=gnu99 -I$(INSTALL_DIR)/include -I/usr/include -L$(INSTALL_DIR)/lib -lz -llzma
+CFLAGS = -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(CONDA_PREFIX)/include -I/usr/include -L$(INSTALL_DIR)/lib -L$(CONDA_PREFIX)/lib
 
 compile = tar xaf $< && \
 	cd $(basename $(basename $<)) && \
@@ -52,8 +54,8 @@ cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" \
 	$1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
 
 gdal_ver = 2.3.3
-geos_ver = 3.7.0
-libspatialite_ver = 4.3.0a
+geos_ver = 3.11.3
+libspatialite_ver = 5.1.0
 
 expat_ver = 2.1.0
 grass_ver = 6.4.5
@@ -67,7 +69,7 @@ qiv_version = 2.3.1
 qwt_ver = 6.0.2
 ossim_ver = 1.8.16
 libxslt_ver = 1.1.28
-freexl_ver = 1.0.2
+freexl_ver = 2.0.0
 ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
 R_ver = 3.1.3
@@ -77,7 +79,7 @@ jpeg_ver = 9c
 szip_ver=2.1.1
 hdf4_ver = 4.2.14
 hdf5_ver = 1.10.1
-sqlite_ver = 3270200
+sqlite_ver = 3450000
 
 libssh2_ver = 1.8.0
 openssl_ver = 1.0.2p
@@ -85,8 +87,8 @@ python_ver = 3.5.6
 
 pcre_ver = 8.43
 readline_ver = 6.3
-xz_ver = 5.2.4
-zlib_ver = 1.2.11
+xz_ver = 5.4.5
+zlib_ver = 1.3
 flex_ver = 2.5.39
 cmake_ver = 3.10.3
 
@@ -207,9 +209,9 @@ freexl-$(freexl_ver).tar.gz:
 	wget -q  http://www.gaia-gis.it/gaia-sins/freexl-sources/$@
 freexl.installed: freexl-$(freexl_ver).tar.gz
 	$(call compile)
-readosm-1.0.0b.tar.gz:
+readosm-1.1.0a.tar.gz:
 	wget -q  http://www.gaia-gis.it/gaia-sins/readosm-sources/$@
-readosm.installed: readosm-1.0.0b.tar.gz
+readosm.installed: readosm-1.1.0a.tar.gz
 	$(call compile)
 
 
