@@ -74,7 +74,7 @@ ITK_ver = 3.12.0
 OpenSceneGraph_ver = 2.8.5
 R_ver = 3.1.3
 laszip_ver = 2.2.0
-tiff_ver = 4.0.9
+tiff_ver = 4.6.0
 jpeg_ver = 9c
 szip_ver=2.1.1
 hdf4_ver = 4.2.14
@@ -188,11 +188,6 @@ qgis-$(qgis_ver).tar.bz2:
 qgis.installed: qgis-$(qgis_ver).tar.bz2 qt.installed pyqt.installed gsl.installed QScintilla.installed qwt.installed spatialindex.installed bison.installed flex.installed gdal.installed 0001-Fix-build-failure-with-gcc-4.4-bug-10762.patch
 	tar xaf $< && cd $(basename $(basename $<)) && patch -p1 < ../0001-Fix-build-failure-with-gcc-4.4-bug-10762.patch && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && cmake -DSQLITE3_INCLUDE_DIR=/dias/users/miyazaki.h.u-tokyo/apps/include -DSQLITE3_LIBRARY=/dias/users/miyazaki.h.u-tokyo/apps/lib/libsqlite3.so -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) . && make && make install
 
-bison-3.8.1.tar.xz: 
-	wget -q -nc https://ftp.gnu.org/gnu/bison/bison-3.8.1.tar.xz
-bison.installed: bison-3.8.1.tar.xz 
-	$(call compile)
-
 qt-everywhere-opensource-src-4.7.4.tar.gz:
 	wget -q  http://download.qt-project.org/archive/qt/4.7/qt-everywhere-opensource-src-4.7.4.tar.gz
 qt.installed: qt-everywhere-opensource-src-4.7.4.tar.gz
@@ -288,6 +283,11 @@ jbigkit-2.1.tar.gz:
 
 jbigkit.installed: jbigkit-2.1.tar.gz
 	tar xaf $< && cd jbigkit-2.1 && make && cp libjbig/libjbig.a libjbig/libjbig85.a $(INSTALL_DIR)/lib/ && cp libjbig/*.h  $(INSTALL_DIR)/include/ && cd .. && touch $@
+
+libiconv-1.17.tar.gz: 
+	wget -q -nc https://ftp.gnu.org/pub/gnu/libiconv/$@
+libiconv.installed: libiconv-1.17.tar.gz
+	$(call compile)
 
 netcdf_ver = 4.3.3.1
 netcdf-$(netcdf_ver).tar.gz:

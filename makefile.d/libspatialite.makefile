@@ -5,7 +5,7 @@ libspatialite.installed: libspatialite-$(libspatialite_ver).tar.gz libsqlite3.so
 	rm -rf $(INSTALL_DIR)/lib/libspatialite.* $(INSTALL_DIR)/include/spatialite $(INSTALL_DIR)/include/spatialite.h
 	$(call compile,\
 	--with-geosconfig=$(INSTALL_DIR)/bin/geos-config \
-	--disable-examples --disable-freexl LIBXML2_LIBS="-lxml2" \
+	--disable-examples --disable-freexl --disable-rttopo --disable-minizi LIBXML2_LIBS="-lxml2" \
 	CC=gcc \
 	CXX=g++ \
 	LIBXML2_CFLAGS="-I$(INSTALL_DIR)/include/libxml2 -I$(CONDA_PREFIX)/include/libxml2 -I/usr/include/libxml2 $(LDFLAGS)" \

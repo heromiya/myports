@@ -2,8 +2,49 @@
 gdal-$(gdal_ver).tar.gz:
 	wget -q  http://download.osgeo.org/gdal/$(gdal_ver)/$@
 # libkml.installed  python.installed libxml2.installed 
-gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.installed geos.installed openjpeg.installed libspatialite.installed curl.installed freexl.installed pcre.installed epsilon.installed postgresql.installed libgeotiff.installed tiff.installed xz.installed hdf5.installed libspatialite.installed 
-	$(call compile,\
+# tar xaf $< &&  libgeotiff.installed
+gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.installed geos.installed openjpeg.installed libspatialite.installed curl.installed freexl.installed pcre.installed epsilon.installed postgresql.installed tiff.installed xz.installed hdf5.installed libspatialite.installed libiconv.installed proj4.installed
+	cd $(basename $(basename $<)) && $(call cmake,\
+	-DGDAL_USE_GEOTIFF_INTERNAL=ON \
+    -DGDAL_USE_GIF_INTERNAL=ON \
+    -DGDAL_USE_JPEG12_INTERNAL=ON \
+    -DGDAL_USE_JPEG_INTERNAL=ON \
+    -DGDAL_USE_JSONC_INTERNAL=ON \
+    -DGDAL_USE_LERC_INTERNAL=ON \
+    -DGDAL_USE_PNG_INTERNAL=ON \
+    -DGDAL_USE_TIFF_INTERNAL=ON \
+    -DGDAL_USE_ZLIB_INTERNAL=ON \
+    -DGDAL_ENABLE_DRIVER_KEA=OFF \
+    -DGDAL_ENABLE_DRIVER_HDF4=OFF \
+    -DOGR_ENABLE_DRIVER_GMLAS=OFF \
+    -DOGR_ENABLE_DRIVER_NAS=OFF \
+    -DGDAL_ENABLE_DRIVER_PDF=OFF \
+    -DGDAL_ENABLE_DRIVER_KMLSUPEROVERLAY=OFF \
+    -DGDAL_USE_LIBKML=OFF \
+    -DOGR_ENABLE_DRIVER_KML=OFF \
+    -DOGR_ENABLE_DRIVER_LIBKML=OFF \
+    -DGDAL_ENABLE_DRIVER_NETCDF=OFF \
+    -DOGR_ENABLE_DRIVER_ILI=OFF \
+    -DGDAL_USE_XERCESC=OFF \
+    -DGDAL_ENABLE_DRIVER_TILEDB=OFF \
+    -DGDAL_ENABLE_DRIVER_RASTERLITE=OFF \
+    -DPROJ_DIR=$(INSTALL_DIR)/lib/cmake/proj \
+    -DCMAKE_SHARED_LINKER_FLAGS="$(LDFLAGS) -L$(INSTALL_DIR)/lib" \
+    -DCMAKE_C_FLAGS="$(CFLAGS) -L$(INSTALL_DIR)/lib" \
+    -DCMAKE_CXX_FLAGS="$(CFLAGS) -L$(INSTALL_DIR)/lib" \
+    -DSPATIALITE_INCLUDE_DIR=$(INSTALL_DIR)/include \
+    -DSPATIALITE_LIBRARY=$(INSTALL_DIR)/lib/libspatialite.so \
+    -DSQLite3_INCLUDE_DIR=$(INSTALL_DIR)/include \
+    -DSQLite3_LIBRARY=$(INSTALL_DIR)/lib/libsqlite3.so \
+    -DOPENSSL_CRYPTO_LIBRARY=$(INSTALL_DIR)/lib/libcrypto.so \
+    -DOPENSSL_INCLUDE_DIR=$(INSTALL_DIR)/include \
+    -DOPENSSL_SSL_LIBRARY=$(INSTALL_DIR)/lib/libssl.so \
+    -DIconv_INCLUDE_DIR=$(INSTALL_DIR)/include \
+    -DIconv_CHARSET_LIBRARY=$(INSTALL_DIR)/lib/libcharset.so \
+    -DIconv_LIBRARY=$(INSTALL_DIR)/lib/libiconv.so \
+    )
+
+#$(call compile,\
 	--with-pg=$(INSTALL_DIR)/bin/pg_config \
 	--with-proj4=$(INSTALL_DIR)/lib \
 	--with-geos=$(INSTALL_DIR)/bin/geos-config \

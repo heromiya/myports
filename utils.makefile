@@ -1,5 +1,5 @@
 bash_ver = 4.3.30
-bison_ver = 3.0.2
+bison_ver = 3.8.1
 raptor_ver = 2.0.15
 emacs_ver = 24.4
 screen_ver = 4.2.1
