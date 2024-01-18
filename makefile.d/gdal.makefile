@@ -1,8 +1,8 @@
-
+# hdf4.shared.installed 
 gdal-$(gdal_ver).tar.gz:
 	wget -q  http://download.osgeo.org/gdal/$(gdal_ver)/$@
 # libkml.installed  python.installed libxml2.installed 
-gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.installed geos.installed openjpeg.installed libspatialite.installed curl.installed freexl.installed pcre.installed epsilon.installed postgresql.installed libgeotiff.installed tiff.installed xz.installed hdf4.shared.installed hdf5.installed libspatialite.installed 
+gdal.installed: gdal-$(gdal_ver).tar.gz sqlite.installed expat.installed proj4.installed geos.installed openjpeg.installed libspatialite.installed curl.installed freexl.installed pcre.installed epsilon.installed postgresql.installed libgeotiff.installed tiff.installed xz.installed hdf5.installed libspatialite.installed 
 	$(call compile,\
 	--with-pg=$(INSTALL_DIR)/bin/pg_config \
 	--with-proj4=$(INSTALL_DIR)/lib \

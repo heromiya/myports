@@ -188,6 +188,11 @@ qgis-$(qgis_ver).tar.bz2:
 qgis.installed: qgis-$(qgis_ver).tar.bz2 qt.installed pyqt.installed gsl.installed QScintilla.installed qwt.installed spatialindex.installed bison.installed flex.installed gdal.installed 0001-Fix-build-failure-with-gcc-4.4-bug-10762.patch
 	tar xaf $< && cd $(basename $(basename $<)) && patch -p1 < ../0001-Fix-build-failure-with-gcc-4.4-bug-10762.patch && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && cmake -DSQLITE3_INCLUDE_DIR=/dias/users/miyazaki.h.u-tokyo/apps/include -DSQLITE3_LIBRARY=/dias/users/miyazaki.h.u-tokyo/apps/lib/libsqlite3.so -DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) . && make && make install
 
+bison-3.8.1.tar.xz: 
+	wget -q -nc https://ftp.gnu.org/gnu/bison/bison-3.8.1.tar.xz
+bison.installed: bison-3.8.1.tar.xz 
+	$(call compile)
+
 qt-everywhere-opensource-src-4.7.4.tar.gz:
 	wget -q  http://download.qt-project.org/archive/qt/4.7/qt-everywhere-opensource-src-4.7.4.tar.gz
 qt.installed: qt-everywhere-opensource-src-4.7.4.tar.gz
