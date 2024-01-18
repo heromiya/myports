@@ -53,12 +53,12 @@ cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" \
 	-DCMAKE_SKIP_RPATH=TRUE \
 	$1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
 
-gdal_ver = 2.3.3
+gdal_ver = 3.8.3
 geos_ver = 3.11.3
 libspatialite_ver = 5.1.0
 
 expat_ver = 2.1.0
-grass_ver = 6.4.5
+grass_ver = 7.8.8
 fftw_ver = 3.3.4
 icewm_ver = 1.3.3
 qgis_ver = 2.6.1
@@ -82,10 +82,10 @@ hdf5_ver = 1.10.1
 sqlite_ver = 3450000
 
 libssh2_ver = 1.8.0
-openssl_ver = 1.0.2p
+openssl_ver = 1.1.1w
 python_ver = 3.5.6
 
-pcre_ver = 8.43
+pcre_ver = 10.42
 readline_ver = 6.3
 xz_ver = 5.4.5
 zlib_ver = 1.3
@@ -229,10 +229,10 @@ jasper-1.900.1.uuid.tar.gz:
 	wget -q  ftp://ftp.remotesensing.org/gdal/jasper-1.900.1.uuid.tar.gz
 jasper.installed: jasper-1.900.1.uuid.tar.gz
 	$(call compile)
-popt-1.14.tar.gz:
-	wget -q  http://rpm5.org/files/popt/popt-1.14.tar.gz
-popt.installed:popt-1.14.tar.gz
-	$(call compile,)
+popt-1.19.tar.gz:
+	wget -q  https://ftp.osuosl.org/pub/rpm/popt/releases/popt-1.x/popt-1.19.tar.gz
+popt.installed: popt-1.19.tar.gz
+	$(call compile)
 gctpc20.tar.Z:
 	wget -q  http://www.nco.ncep.noaa.gov/pmb/codes/nwprod/util/sorc/wgrib2.cd/grib2/gctpc20.tar.Z
 gctpc20.installed: gctpc20.tar.Z

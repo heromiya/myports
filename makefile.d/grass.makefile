@@ -1,5 +1,5 @@
 grass-$(grass_ver).tar.gz:
-	wget -q  http://grass.osgeo.org/grass64/source/grass-$(grass_ver).tar.gz
+	wget -q  http://grass.osgeo.org/grass78/source/grass-$(grass_ver).tar.gz
 grass.installed: grass-$(grass_ver).tar.gz gdal.installed postgresql.installed sqlite.installed fftw.installed geos.installed proj4.installed
 	$(call compile, \
 	--with-cxx \
