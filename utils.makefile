@@ -1,7 +1,7 @@
 bash_ver = 4.3.30
 bison_ver = 3.8.1
 raptor_ver = 2.0.15
-emacs_ver = 24.4
+emacs_ver = 26.3
 screen_ver = 4.2.1
 w3m_version = 0.5.3
 wget_ver = 1.16.1
@@ -75,12 +75,15 @@ screen-$(screen_ver).tar.gz:
 screen.installed: screen-$(screen_ver).tar.gz
 	$(compile)
 
-emacs-$(emacs_ver).tar.gz:
-	wget -q  http://ftp.yzu.edu.tw/gnu/emacs/$@
-emacs.installed: emacs-$(emacs_ver).tar.gz
-	$(call compile,--with-x-toolkit=no --with-xpm=no --with-gif=no)
-
-
+emacs-$(emacs_ver).tar.xz:
+	wget -q  https://ftp.gnu.org/gnu/emacs/$@ # http://ftp.yzu.edu.tw/gnu/emacs/$@
+emacs.installed: emacs-$(emacs_ver).tar.xz ncurses.installed gnutls.installed
+	export LDFLAGS="$(LDFLAGS)" && \
+	export CFLAGS="$(CFLAGS)" && \
+	tar xa --skip-old-files -f $< && cd $(basename $(basename $<)) && \
+    ./configure --prefix $(INSTALL_DIR) --with-x-toolkit=no  --with-gnutls=ifavailable --with-xpm=ifavailable && \
+    make && make install && cd .. && touch $@
+#	$(call compile,--without-x --without-x-toolkit --with-x-toolkit=no --without-xwidgets --without-xpm --without-gif)
 
 nettle-$(nettle_ver).tar.gz:
 	wget -q  http://ftp.gnu.org/gnu/nettle/nettle-$(nettle_ver).tar.gz

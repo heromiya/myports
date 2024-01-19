@@ -1,7 +1,7 @@
 mapserver_ver = 6.4.3
 mapserver-$(mapserver_ver).tar.gz:
 	wget -q  http://download.osgeo.org/mapserver/mapserver-$(mapserver_ver).tar.gz
-mapserver.installed: mapserver-$(mapserver_ver).tar.gz gdal.installed curl.installed expat.installed postgis.installed pcre.installed python.installed
+mapserver.installed: mapserver-$(mapserver_ver).tar.gz gdal.installed curl.installed expat.installed pcre.installed python.installed
 	tar xaf $<
 	mkdir -p mapserver-$(mapserver_ver)/build && \
 	cd mapserver-$(mapserver_ver)/build && \
@@ -17,3 +17,4 @@ mapserver.installed: mapserver-$(mapserver_ver).tar.gz gdal.installed curl.insta
 	$(MAKE) && \
 	$(MAKE) install && \
 	touch ../../$@
+# postgis.installed 

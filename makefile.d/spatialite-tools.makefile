@@ -7,8 +7,8 @@ spatialite-tools.installed: spatialite-tools-$(spatialite-tools_ver).tar.gz libs
 	CC=gcc \
 	CXX=g++ \
     LIBS="-L$(CONDA_PREFIX) -liconv" \
-	CFLAGS="  -fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/glibc-2.15/include -I$(INSTALL_DIR)/include/libxml2 -I$(CONDA_PREFIX)/include/libxml2 -I$(INSTALL_DIR)/include/libxml " \
-	CXXFLAGS="-fPIC -I$(INSTALL_DIR)/include -I$(INSTALL_DIR)/glibc-2.15/include -I$(INSTALL_DIR)/include/libxml2 -I$(CONDA_PREFIX)/include/libxml2 -I$(INSTALL_DIR)/include/libxml " \
+	CFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/glibc-2.15/include -I$(INSTALL_DIR)/include/libxml2 -I$(CONDA_PREFIX)/include/libxml2 -I$(INSTALL_DIR)/include/libxml " \
+	CXXFLAGS="$(CFLAGS) -I$(INSTALL_DIR)/glibc-2.15/include -I$(INSTALL_DIR)/include/libxml2 -I$(CONDA_PREFIX)/include/libxml2 -I$(INSTALL_DIR)/include/libxml " \
     LIBSPATIALITE_CFLAGS=" $(CFLAGS) $(LDFLAGS) " \
     LIBSPATIALITE_LIBS=" -lspatialite " \
     LIBREADOSM_CFLAGS=" $(CFLAGS) $(LDFLAGS) " \

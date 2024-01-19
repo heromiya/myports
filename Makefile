@@ -5,26 +5,26 @@ STATIC_FLAGS= -static -static-libgcc -static-libstdc++
 
 UNAME_A = $(shell uname -a)
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
-m64_FLAG = -m64  -L$(INSTALL_DIR)/lib64
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib -L$(CONDA_PREFIX)/lib -L/usr/lib -L/usr/lib64
+m64_FLAG = -m64 -L$(INSTALL_DIR)/lib64
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -liconv -lz -L$(INSTALL_DIR)/lib64 -L$(CONDA_PREFIX)/lib -L/usr/lib -L/usr/lib64
 else
 m64_FLAG = -m32
-LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -L/usr/lib -L$(CONDA_PREFIX)/lib
+LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -liconv -lz -L$(CONDA_PREFIX)/lib -L/usr/lib 
 endif
-
+# -lncurses 
 CC = gcc
 CXX = g++
 F77 = gfortran
 
 ifneq (`which make`,)
-MAKE = make -j3
+MAKE = make -j8
 else
 MAKE = gmake
 endif
 
-CFLAGS = -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(CONDA_PREFIX)/include -I/usr/include -L$(INSTALL_DIR)/lib -L$(CONDA_PREFIX)/lib
+CFLAGS = -fPIC $(m64_FLAG) -I$(INSTALL_DIR)/include -I$(CONDA_PREFIX)/include -I/usr/include -L$(INSTALL_DIR)/lib -liconv -lz -L$(CONDA_PREFIX)/lib 
 
-compile = tar xaf $< && \
+compile = tar xa --skip-old-files -f $< && \
 	cd $(basename $(basename $<)) && \
 	export CC=$(CC) && \
 	export CXX=$(CXX) && \
@@ -37,7 +37,7 @@ compile = tar xaf $< && \
 	export FFLAGS="$(CFLAGS)" && \
 	./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install && touch ../$@
 
-compile_no_touch = tar xaf $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install
+compile_no_touch = tar xa --skip-old-files -f $< && cd $(basename $(basename $<)) && export CC=$(CC) && export CXX=$(CXX) && export F77=$(F77) && export PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig && export CFLAGS="$(CFLAGS)" && export CXXFLAGS="$(CFLAGS)" && export CPPFLAGS="$(CFLAGS)" && export LDFLAGS="$(LDFLAGS)" && export FFLAGS="$(CFLAGS)" && ./configure --prefix=$(INSTALL_DIR) $1 && $(MAKE) uninstall; $(MAKE) && $(MAKE) install
 
 cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" \
 	-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
@@ -53,7 +53,6 @@ cmake = mkdir -p build && cd build && cmake -G "Unix Makefiles" \
 	-DCMAKE_SKIP_RPATH=TRUE \
 	$1 .. && $(MAKE) && $(MAKE) install && touch ../../$@
 
-gdal_ver = 3.8.3
 geos_ver = 3.11.3
 libspatialite_ver = 5.1.0
 
@@ -138,6 +137,7 @@ ossim-$(ossim_ver).tar.gz:
 ossim.installed: ossim-$(ossim_ver).tar.gz
 	$(call compile,--with-libtiff=$(INSTALL_DIR) --with-geotiff=$(INSTALL_DIR) --with-openthreads=$(INSTALL_DIR))
 #	tar xaf $< && cd ossim-1.8.16/ossim && ./configure --prefix=$(INSTALL_DIR) --enable-sharedOssimLibraries --enable-staticOssimLibraries --enable-singleSharedOssimLibrary --enable-singleStaticOssimLibrary --enable-staticOssimApps --with-libtiff=$(INSTALL_DIR) --with-geotiff=$(INSTALL_DIR) --with-openthreads=$(INSTALL_DIR) CC=gcc PKG_CONFIG_PATH=$(INSTALL_DIR)/lib/pkgconfig LDFLAGS="-L$(INSTALL_DIR)/lib -L$(INSTALL_DIR)/lib64 -L$(INSTALL_DIR)/lib"  CFLAGS="$(CFLAGS)" CXXFLAGS="$(CFLAGS)" CPPFLAGS="$(CFLAGS)" F77=gfortran FFLAGS="$(CFLAGS)" && gmake uninstall; gmake -j20 && ln -sf `which libtool` . && gmake install && cd .. && touch $@
+
 
 
 dropbear-2016.72.tar.bz2:
@@ -367,3 +367,4 @@ ledaps.installed: ledaps-read-only libgeotiff.installed gctpc20.installed hdf4.s
 	export SZIPLIB=$(INSTALL_DIR)/lib && \
 	find -type f | grep Makefile$ | xargs -n 1 sed -i 's/-ldf /-ldf -lsz /g' && \
 	make && make install && cd $$OLDPWD && touch $@
+
