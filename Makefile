@@ -1,9 +1,7 @@
 INSTALL_DIR = $(HOME)/apps
 VPATH = .:$(HOME)/apps:/usr:/usr/lib:/usr/lib64
-
-STATIC_FLAGS= -static -static-libgcc -static-libstdc++
-
 UNAME_A = $(shell uname -a)
+
 ifeq ($(findstring x86_64,$(UNAME_A)),x86_64)
 m64_FLAG = -m64 -L$(INSTALL_DIR)/lib64
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -liconv -lz -L$(INSTALL_DIR)/lib64 -L$(CONDA_PREFIX)/lib -L/usr/lib -L/usr/lib64
@@ -11,7 +9,9 @@ else
 m64_FLAG = -m32
 LDFLAGS= $(m64_FLAG) -L$(INSTALL_DIR)/lib -liconv -lz -L$(CONDA_PREFIX)/lib -L/usr/lib 
 endif
+
 # -lncurses 
+
 CC = gcc
 CXX = g++
 F77 = gfortran
